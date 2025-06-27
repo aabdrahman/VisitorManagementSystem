@@ -1,0 +1,6 @@
+@VisitorManagementSystem_HostAddress = http://localhost:5081
+
+GET {{VisitorManagementSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
