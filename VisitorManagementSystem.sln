@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Contracts", "Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{9DCB5836-D685-4489-8334-3AB27AE10D24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitorManagementSystem.Presentation", "VisitorManagementSystem.Presentation\VisitorManagementSystem.Presentation.csproj", "{78FEF877-4A56-4BF3-9650-9745A9435330}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisitorManagementSystem.Presentation", "VisitorManagementSystem.Presentation\VisitorManagementSystem.Presentation.csproj", "{78FEF877-4A56-4BF3-9650-9745A9435330}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitorManagementSystem.Client", "VisitorManagementSystem.Client\VisitorManagementSystem.Client.csproj", "{CAD495EB-AF03-4A7E-AE88-89042B5DD531}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{78FEF877-4A56-4BF3-9650-9745A9435330}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78FEF877-4A56-4BF3-9650-9745A9435330}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78FEF877-4A56-4BF3-9650-9745A9435330}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAD495EB-AF03-4A7E-AE88-89042B5DD531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAD495EB-AF03-4A7E-AE88-89042B5DD531}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAD495EB-AF03-4A7E-AE88-89042B5DD531}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAD495EB-AF03-4A7E-AE88-89042B5DD531}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
