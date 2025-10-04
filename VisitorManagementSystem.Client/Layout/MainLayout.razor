@@ -1,3 +1,94 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+
+<div class="bb-page-sidebar">
+
+    <Sidebar @ref="sidebar"
+             IconName="IconName.Person"
+             Title=@Greeting
+             Width="15"
+             WidthUnit="Unit.Vw"
+             DataProvider="SidebarDataProvider" />
+
+    <main>
+        <div class="bb-top-row px-4 d-flex justify-content-between">
+            <Icon Name="IconName.List" role="button" @onclick="ToggleSidebar" />
+            <a href="https://docs.microsoft.com/aspnet/" role="button" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            <div class="py-2">@Body</div>
+        </article>
+    </main>
+
+</div>
+
+@*
+<BlazorBootstrapLayout StickyHeader="true">
+    <HeaderSection>
+        <ThemeSwitcher Class="ps-3 ps-lg-2" Position="DropdownMenuPosition.End" />
+    </HeaderSection>
+
+    <SidebarSection>
+        <Sidebar Href="/"
+                  Title="Visitor Management System Admin Page"
+                  BadgeText=""
+                  DataProvider="SidebarDataProvider"
+                  WidthUnit="Unit.Px" />
+    </SidebarSection>
+
+    <ContentSection>
+        @Body
+    </ContentSection>
+
+    <FooterSection>
+        Footer Links.....
+    </FooterSection>
+</BlazorBootstrapLayout>
+*@
+
+@code {
+    Sidebar sidebar;
+    IEnumerable<NavItem> navItems = default!;
+    private string Greeting;
+    private string LoggedInUserName = "John Doe";
+
+    private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
+    {
+        if (navItems is null)
+            navItems = GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(navItems));
+    }
+
+    private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
+    {
+        if (navItems is null)
+            navItems = GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(navItems));
+    }
+
+    private IEnumerable<NavItem> GetNavItems()
+    {
+        navItems = new List<NavItem>
+        {
+            new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match=NavLinkMatch.All},
+            new NavItem { Id = "2", Href = "/counter", IconName = IconName.PlusSquareFill, Text = "Counter"},
+            new NavItem { Id = "3", Href = "/weather", IconName = IconName.Table, Text = "Fetch Data"},
+            new NavItem {Id = "4", Href= "/check-in", IconName = IconName.Check, Text = "Check In"}
+        };
+        GetGreeting();
+        return navItems;
+    }
+
+    private void GetGreeting()
+    {
+        Greeting = $"Hi, {LoggedInUserName}";
+    }
+
+    private void ToggleSidebar()
+    {
+        sidebar.ToggleSidebar();
+    }
+}

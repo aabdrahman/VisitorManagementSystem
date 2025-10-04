@@ -1,0 +1,34 @@
+﻿@page "/"
+@inject NavigationManager navManager
+<PageTitle>Home</PageTitle>
+
+@*
+<div class="container-fluid">
+    <h1 style="font-family:var(--cf-title-font);">
+        This is the Home Page Title
+    </h1>
+</div>
+*@
+
+<PageNav Description="Are you here on a scheduled visit?" RightHandSideNav="HandleRightClicked" LeftHandSideNav="HandleLeftClicked">
+    <Right>
+        <img src="/Images/Yes.png" alt='Yes clip art' width="350" height="350" role="button" />
+    </Right>
+    <Left>
+        <img src="/Images/No.png" alt='Yes clip art' width="350" height="350" role="button" />
+    </Left>
+</PageNav>
+
+@code {
+
+
+    private void HandleRightClicked()
+    {
+        
+    }
+
+    private void HandleLeftClicked()
+    {
+
+    }
+}
