@@ -1,0 +1,74 @@
+﻿@page "/scheduled-visit"
+@inject NavigationManager navManager
+
+<PageNav Description="Enter your Visitor Identification Number" GoToPreviousPage="HandleGoToPreviousPage">
+    <ContentBody>
+        <div class="d-flex flex-column justify-content-center align-items-center w-100">
+            <div class="form-group d-block w-75 mb-2">
+                <InputText @bind-Value="_visitorIdentificationNumber" class="form-control w-100" />
+                <span class="validation-message" role="alert">@_errorMessage</span>
+            </div>
+            @if(_isLoading)
+            {
+                <button class="btn btn-primary" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">Loading...</span>
+                </button>
+            }
+            else
+            {
+           
+                <div class="d-flex justify-content-between w-75">
+                    <button class="btn btn-secondary" type="button" role="button" @onclick="ResetForm">Clear</button>
+                    <button class="btn btn-primary" type="submit" role="button" @onclick="GetDetails">Submit</button>
+                </div>
+            }
+        </div>
+    </ContentBody>
+</PageNav>
+
+<Popup @ref="popup" Title="Success" SaveChanges="HandleSaveChnages">
+    <Body>
+        <p class="fw-bold">
+            @_message
+        </p>
+    </Body>
+</Popup>
+
+@code {
+    private string _visitorIdentificationNumber;
+    private string _errorMessage;
+    private bool _isLoading = false;
+    private string _message;
+    private Popup popup;
+
+    private void HandleGoToPreviousPage()
+    {
+        navManager.NavigateTo("/");
+    }
+
+    private async Task GetDetails()
+    {
+        if(!int.TryParse(_visitorIdentificationNumber, out int _))
+        {
+            _errorMessage = "Invalid Input. Visitor Identification MUST be a number";
+        }
+        _isLoading = true;
+        await Task.Delay(4500);
+        _isLoading = false;
+        await Task.Delay(200);
+        popup.Open();
+    }
+
+    private void ResetForm()
+    {
+        _visitorIdentificationNumber = null;
+        _errorMessage = null;
+        _isLoading = false;
+    }
+
+    private void HandleSaveChnages()
+    {
+        navManager.NavigateTo("/");
+    }
+}
