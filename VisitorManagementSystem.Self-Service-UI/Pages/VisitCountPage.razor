@@ -1,8 +1,7 @@
-﻿@page "/"
+﻿@page "/visitor-type"
 @inject NavigationManager navManager
-<PageTitle>Home</PageTitle>
 
-<PageNav Description="Are you here on a scheduled visit?" GoToPreviousPage="HandleGoToPreviousPage">
+<PageNav Description="Are you part of a group?" GoToPreviousPage="HandleGoToPreviousPage">
     <ContentBody>
         <div class="d-flex w-100 h-100 justify-content-between align-items-center g-3">
             <img src="/Images/Yes.png" alt='Yes clip art' width="250" height="250" role="button" @onclick="HandleRightClicked" />
@@ -13,7 +12,6 @@
 
 @code {
 
-
     private void HandleRightClicked()
     {
 
@@ -21,12 +19,11 @@
 
     private void HandleLeftClicked()
     {
-        navManager.NavigateTo("confirm-already-visit");
+        navManager.NavigateTo("new-visitor-booking");
     }
 
     private void HandleGoToPreviousPage()
     {
-        navManager.NavigateTo("");
+        
     }
-
 }

@@ -1,6 +1,14 @@
 ﻿
 <div class="container-xxl h-100 w-100 justify-content-center">
     <div class="d-flex flex-column main-content">
+        @if (!Description.Contains("Are you here on a scheduled visit?", StringComparison.CurrentCultureIgnoreCase))
+        {
+            <div class="d-flex justify-content-start">
+                <button class="btn btn-danger" @onclick="HandleGoToPreviousPage">
+                    Back
+                </button>
+            </div>
+        }
         <div class="d-flex flex-column m-3 w-100">
             <h1 class="description">
                 @Description
@@ -27,4 +35,12 @@
 
     [Parameter, EditorRequired]
     public RenderFragment ContentBody { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback GoToPreviousPage { get; set; }
+
+    private async Task HandleGoToPreviousPage()
+    {
+        await GoToPreviousPage.InvokeAsync();
+    }
 }

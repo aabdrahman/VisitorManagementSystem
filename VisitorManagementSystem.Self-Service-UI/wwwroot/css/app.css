@@ -1,10 +1,10 @@
 
 
 :root {
-
     /* FONT FAMILY */
     --cf-title-font: "Bungee Spice", sans-serif;
     --cf-body-font: "Anton", sans-serif;
+    --cf-desc-font: "Quicksand", sans-serif;
 
     /* FONT SIZE */
     --cf-font-size: 1.5rem;
@@ -30,7 +30,7 @@ main {
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    outline: 3px solid #26b050;
 }
 
 .invalid {
@@ -39,6 +39,10 @@ main {
 
 .validation-message {
     color: red;
+    font-family: "Story Script", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    text-align: center;
 }
 
 #blazor-error-ui {

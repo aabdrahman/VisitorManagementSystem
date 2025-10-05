@@ -1,0 +1,85 @@
+﻿@page "/new-visitor-booking"
+@inject NavigationManager navManager
+
+<PageNav Description="Kindly fill below form" GoToPreviousPage="HandleGoToPreviousPage">
+    <ContentBody>
+        <EditForm EditContext="_editContext" OnValidSubmit="SubmitForm">
+            <DataAnnotationsValidator />
+            <div class="row">
+                <div class="form-group text-start mb-2">
+                    <label for="name" class="form-label">Visitor Name:</label>
+                    <InputText id="name" class="form-control" @bind-Value="_visitDetail.VisitorName"  />
+                    <ValidationMessage For="(() => _visitDetail.VisitorName)" />
+                </div>
+                <div class="form-group text-start mb-2">
+                    <label for="phoneNumber" class="form-label">Phone Number:</label>
+                    <InputText id="phoneNumber" class="form-control" @bind-Value="_visitDetail.VisitorPhoneNumber" />
+                    <ValidationMessage For="(() => _visitDetail.VisitorPhoneNumber)" />
+                </div>
+                <div class="form-group text-start mb-2">
+                    <label for="phoneNumber" class="form-label">Email Address:</label>
+                    <InputText id="phoneNumber" class="form-control" @bind-Value="_visitDetail.VisitorEmailAddress" />
+                    <ValidationMessage For="(() => _visitDetail.VisitorEmailAddress)" />
+                </div>
+                <div class="form-group text-start mb-2">
+                    <label for="gender" class="form-label">Gender:</label>
+
+                    <InputRadioGroup @bind-Value="_visitDetail.VisitorGender" >
+                        @foreach (Gender item in Enum.GetValues(typeof(Gender)))
+                        {
+                            <div class="form-check form-check-inline">
+                                <InputRadio class="form-check-input" Value="@item" />
+                                <label class="form-check-label">@item</label>
+                            </div>
+                        }
+                    </InputRadioGroup>
+
+                    <ValidationMessage For="() => _visitDetail.VisitorGender" />
+                </div>
+                <div class="form-group text-start mb-2">
+                    <label for="visitpurpose" class="form-label">Purpose Of Visit:</label>
+                    <InputText id="visitpurpose" class="form-control" @bind-Value="_visitDetail.PurposeOfVisit" />
+                    <ValidationMessage For="(() => _visitDetail.PurposeOfVisit)" />
+                </div>
+                <div class="form-group text-start mb-2">
+                    <label for="hostname" class="form-label">Name Of Host:</label>
+                    <InputText id="hostname" class="form-control" @bind-Value="_visitDetail.HostName" />
+                    <ValidationMessage For="(() => _visitDetail.HostName)" />
+                </div>
+                <div class="form-group d-flex justify-content-between align-items-center">
+                    <button class="btn btn-secondary" type="button" role="button" @onclick="ResetForm">Clear</button>
+                    <button class="btn btn-primary" type="submit" role="button">Submit</button>
+                </div>
+            </div>
+        </EditForm>
+    </ContentBody>
+</PageNav>
+
+@code {
+    private EditContext _editContext;
+    private CreateVisitDetailDto _visitDetail;
+
+    protected override void OnInitialized()
+    {
+        _visitDetail = new();
+        _editContext = new EditContext(_visitDetail);
+    }
+
+    private async Task SubmitForm()
+    {
+        _visitDetail.VisitType = VisitType.WalkIn.ToString();
+        _visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        _visitDetail.VisitorRegistrationType = VisitorRegistrationTypes.FirstTime.ToString();
+    }
+
+    private void ResetForm()
+    {
+        _visitDetail = new();
+        _editContext = new EditContext(_visitDetail);
+    }
+
+    private void HandleGoToPreviousPage()
+    {
+        navManager.NavigateTo("/");
+    }
+}

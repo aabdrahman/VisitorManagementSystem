@@ -1,0 +1,40 @@
+﻿
+
+.form-group > label {
+    font-family: var(--cf-desc-font);
+    font-size: 1.5rem;
+    text-decoration: none;
+    font-weight: 900;
+    color: #b57e6e;
+}
+
+.form-check-inline {
+    display: inline-flex;
+    justify-content: center;
+    align-items: baseline;
+    margin-left: 1rem;
+    gap: 1rem;
+}
+
+.form-check-label {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
+
+.form-check-input:checked {
+    background-color: #325c78;
+    border-color: #325c78;
+    box-shadow: 0 0 0 0.2rem rgba(0, 120, 215, 0.25);
+}
+
+.validation-message {
+    font-family: "Story Script", sans-serif;
+}
+
+.btn {
+    font-family: "Anton", sans-serif;
+    color: #4a8dba;
+    border-radius: 10px;
+    background-color: #a9b2b8;
+}
