@@ -18,12 +18,16 @@ body, main {
     display: flex;
     justify-content: center;
     align-items: center;
+    max-width: 65%;
+    min-width: 65%;
+    gap: 1rem 1rem;
 }
 
 .description {
     font-family: var(--cf-title-font);
     font-size: var(--cf-font-size);
     text-align: center;
+    width: 100%;
 }
 
 .main-content {
@@ -33,6 +37,7 @@ body, main {
     justify-content: center;
     text-align: center;
     color: white;
+    width: 60%;
 }
 
 button {
@@ -44,4 +49,9 @@ button {
     gap: 1rem 1rem;
     justify-content: space-between;
     align-items: center;
+}
+
+.bi {
+    z-index: 1;
+
 }

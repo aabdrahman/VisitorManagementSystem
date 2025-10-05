@@ -1,0 +1,35 @@
+﻿@page "/confirm-already-visit"
+
+@*
+<PageNav Description="Have you been here before?" LeftHandSideNav="HandleLeftClicked" RightHandSideNav="HandleRightClicked">
+    <Right>
+        <img src="/Images/Yes.png" alt='Yes clip art' width="250" height="250" role="button" @onclick="HandleRightClicked" />
+    </Right>
+    <Left>
+        <img src="/Images/No.png" alt='Yes clip art' width="250" height="250" role="button" @onclick="HandleLeftClicked" />
+    </Left>
+</PageNav>
+*@
+
+<PageNav Description="Have you been here before?">
+    <ContentBody>
+        <div class="d-flex w-100 h-100 justify-content-between align-items-center g-3">
+            <img src="/Images/Yes.png" alt='Yes clip art' width="250" height="250" role="button" @onclick="HandleRightClicked" />
+            <img src="/Images/No.png" alt='Yes clip art' width="250" height="250" role="button" @onclick="HandleLeftClicked" />
+        </div>
+    </ContentBody>
+</PageNav>
+
+@code {
+
+
+    private void HandleRightClicked()
+    {
+
+    }
+
+    private void HandleLeftClicked()
+    {
+
+    }
+}

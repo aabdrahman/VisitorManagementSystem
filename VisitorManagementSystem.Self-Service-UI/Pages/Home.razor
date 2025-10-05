@@ -2,21 +2,13 @@
 @inject NavigationManager navManager
 <PageTitle>Home</PageTitle>
 
-@*
-<div class="container-fluid">
-    <h1 style="font-family:var(--cf-title-font);">
-        This is the Home Page Title
-    </h1>
-</div>
-*@
-
-<PageNav Description="Are you here on a scheduled visit?" RightHandSideNav="HandleRightClicked" LeftHandSideNav="HandleLeftClicked">
-    <Right>
-        <img src="/Images/Yes.png" alt='Yes clip art' width="350" height="350" role="button" />
-    </Right>
-    <Left>
-        <img src="/Images/No.png" alt='Yes clip art' width="350" height="350" role="button" />
-    </Left>
+<PageNav Description="Are you here on a scheduled visit?">
+    <ContentBody>
+        <div class="d-flex w-100 h-100 justify-content-between align-items-center g-3">
+            <img src="/Images/Yes.png" alt='Yes clip art' width="250" height="250" role="button" @onclick="HandleRightClicked" />
+            <img src="/Images/No.png" alt='Yes clip art' width="250" height="250" role="button" @onclick="HandleLeftClicked" />
+        </div>
+    </ContentBody>
 </PageNav>
 
 @code {
@@ -24,11 +16,11 @@
 
     private void HandleRightClicked()
     {
-        
+
     }
 
     private void HandleLeftClicked()
     {
-
+        navManager.NavigateTo("confirm-already-visit");
     }
 }
