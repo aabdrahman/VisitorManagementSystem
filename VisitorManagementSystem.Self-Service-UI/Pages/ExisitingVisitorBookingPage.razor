@@ -1,0 +1,128 @@
+﻿@page "/existing-vistor-booking"
+@inject NavigationManager navManager
+
+<PageNav Description="@description" GoToPreviousPage="HandleGoToPreviousPage">
+    <ContentBody>
+        <EditForm EditContext="_editContext" OnValidSubmit="OnSubmit">
+            <DataAnnotationsValidator />
+            <div class="row">
+
+                <!-- Phone number -->
+                <div class="form-group text-start mb-3 w-100">
+                    <label class="form-label" for="phoneNumber">Enter your phone number:</label>
+                    <InputText class="form-control" id="phoneNumber"
+                               @bind-Value="_visitDetail.VisitorPhoneNumber"
+                               @onkeypress="GetVisitorByPhoneNumber" />
+                    <span class="text-danger">@_errorMessage</span>
+                </div>
+
+                @if (isPhoneNumberExists)
+                {
+                    <!-- Visitor name -->
+                    <div class="form-group  text-start mb-2">
+                        <label class="form-label" for="visitorName">Visitor Name:</label>
+                        <InputText id="visitorName" class="form-control"
+                                   @bind-Value="_visitDetail.VisitorName"
+                                   readonly />
+                        <ValidationMessage For="() => _visitDetail.VisitorName" />
+                    </div>
+
+                    <!-- Visitor email -->
+                    <div class="form-group text-start mb-2">
+                        <label class="form-label text-start" for="visitorEmail">Email Address:</label>
+                        <InputText id="visitorEmail" class="form-control"
+                                   @bind-Value="_visitDetail.VisitorEmailAddress"
+                                   readonly />
+                        <ValidationMessage For="() => _visitDetail.VisitorEmailAddress" />
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="form-group text-start mb-2">
+                        <label class="form-label text-start">Gender:</label>
+
+                        <InputRadioGroup @bind-Value="_visitDetail.VisitorGender">
+                            @foreach (Gender item in Enum.GetValues(typeof(Gender)))
+                            {
+                                <div class="form-check form-check-inline">
+                                    <InputRadio class="form-check-input" Value="@item.ToString()" />
+                                    <label class="form-check-label">@item</label>
+                                </div>
+                            }
+                        </InputRadioGroup>
+
+                        <ValidationMessage For="() => _visitDetail.VisitorGender" />
+                    </div>
+
+                    <!-- Purpose of visit -->
+                    <div class="form-group text-start mb-2">
+                        <label class="form-label text-start" for="visitPurpose">Purpose of Visit:</label>
+                        <InputText id="visitPurpose" class="form-control"
+                                   @bind-Value="_visitDetail.PurposeOfVisit" />
+                        <ValidationMessage For="() => _visitDetail.PurposeOfVisit" />
+                    </div>
+
+                    <!-- Host name -->
+                    <div class="form-group text-start mb-2">
+                        <label class="form-label text-start" for="hostName">Name of Host:</label>
+                        <InputText id="hostName" class="form-control"
+                                   @bind-Value="_visitDetail.HostName" />
+                        <ValidationMessage For="() => _visitDetail.HostName" />
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                        <button class="btn btn-secondary" type="button" @onclick="ResetForm">Clear</button>
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+                }
+            </div>
+        </EditForm>
+    </ContentBody>
+</PageNav>
+@code {
+    private string description = "Kindly fill below form";
+    private EditContext _editContext;
+    private CreateVisitDetailDto _visitDetail;
+    private bool isPhoneNumberExists = true;
+    private string _errorMessage;
+
+    protected override void OnInitialized()
+    {
+        _visitDetail = new();
+        _visitDetail.VisitorRegistrationType = VisitorRegistrationTypes.Recurring.ToString();
+        _editContext = new EditContext(_visitDetail);
+    }
+
+    private void HandleGoToPreviousPage()
+    {
+        navManager.NavigateTo("confirm-already-visit");
+    }
+
+    private async Task OnSubmit()
+    {
+
+    }
+
+    private async Task GetVisitorByPhoneNumber(KeyboardEventArgs arg)
+    {
+        if(arg.Key == "Enter")
+        {
+            await Task.Delay(500);
+            _visitDetail.VisitorName = "John Doe";
+            _visitDetail.VisitorEmailAddress = "";
+            isPhoneNumberExists = true;
+            // _editContext = new EditContext(_visitDetail);
+            // StateHasChanged();
+            _editContext.NotifyFieldChanged(FieldIdentifier.Create(() => _visitDetail.VisitorName));
+            _editContext.NotifyFieldChanged(FieldIdentifier.Create(() => _visitDetail.VisitorEmailAddress));
+
+        }
+    }
+
+    private void ResetForm()
+    {
+        _visitDetail = new();
+        _visitDetail.VisitorRegistrationType = VisitorRegistrationTypes.Recurring.ToString();
+        _editContext = new EditContext(_visitDetail);
+    }
+}

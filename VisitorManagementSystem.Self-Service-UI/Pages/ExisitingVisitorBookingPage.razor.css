@@ -1,5 +1,7 @@
 ﻿
 
+
+
 .form-group > label {
     font-family: var(--cf-desc-font);
     font-size: 1.5rem;
@@ -38,12 +40,4 @@
     color: #4a8dba;
     border-radius: 10px;
     background-color: #a9b2b8;
-}
-
-::placeholder {
-    opacity: .5;
-    font-family: "Story Script", sans-serif;
-    color: #999; /* Light grey */
-    font-size: 14px;
-    font-style: italic;
 }
