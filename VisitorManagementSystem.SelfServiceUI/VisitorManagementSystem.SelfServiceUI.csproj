@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Folder Include="Features\" />
+    <Folder Include="Handlers\Visitor\" />
   </ItemGroup>
 
   <ItemGroup>

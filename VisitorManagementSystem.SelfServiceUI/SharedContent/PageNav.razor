@@ -3,7 +3,7 @@
     <div class="d-flex flex-column main-content">
         @if (!Description.Contains("Are you here on a scheduled visit?", StringComparison.CurrentCultureIgnoreCase))
         {
-            <div class="d-flex justify-content-start">
+            <div class="d-flex justify-content-start w-100">
                 <button class="btn btn-danger" @onclick="HandleGoToPreviousPage">
                     Back
                 </button>

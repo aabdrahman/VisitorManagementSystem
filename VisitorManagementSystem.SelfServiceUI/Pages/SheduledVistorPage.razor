@@ -4,7 +4,7 @@
 <PageNav Description="Enter your Visitor Identification Number" GoToPreviousPage="HandleGoToPreviousPage">
     <ContentBody>
         <div class="d-flex flex-column justify-content-center align-items-center w-100">
-            <div class="form-group d-block w-75 mb-2">
+            <div class="form-group d-block w-100 mb-2">
                 <InputText @bind-Value="_visitorIdentificationNumber" class="form-control w-100" />
                 <span class="validation-message" role="alert">@_errorMessage</span>
             </div>
@@ -18,7 +18,7 @@
             else
             {
            
-                <div class="d-flex justify-content-between w-75">
+                <div class="d-flex justify-content-between w-100">
                     <button class="btn btn-secondary" type="button" role="button" @onclick="ResetForm">Clear</button>
                     <button class="btn btn-primary" type="submit" role="button" @onclick="GetDetails">Submit</button>
                 </div>

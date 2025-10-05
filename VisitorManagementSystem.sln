@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisitorManagementSystem.Pre
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisitorManagementSystem.Client", "VisitorManagementSystem.Client\VisitorManagementSystem.Client.csproj", "{CAD495EB-AF03-4A7E-AE88-89042B5DD531}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitorManagementSystem.Self-Service-UI", "VisitorManagementSystem.Self-Service-UI\VisitorManagementSystem.Self-Service-UI.csproj", "{7E05961C-080C-4331-853B-DA991ED79C34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisitorManagementSystem.SelfServiceUI", "VisitorManagementSystem.SelfServiceUI\VisitorManagementSystem.SelfServiceUI.csproj", "{6F1CCA63-F417-4D16-BAE7-65C4662DC881}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,10 +71,10 @@ Global
 		{CAD495EB-AF03-4A7E-AE88-89042B5DD531}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAD495EB-AF03-4A7E-AE88-89042B5DD531}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAD495EB-AF03-4A7E-AE88-89042B5DD531}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7E05961C-080C-4331-853B-DA991ED79C34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7E05961C-080C-4331-853B-DA991ED79C34}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7E05961C-080C-4331-853B-DA991ED79C34}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7E05961C-080C-4331-853B-DA991ED79C34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F1CCA63-F417-4D16-BAE7-65C4662DC881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F1CCA63-F417-4D16-BAE7-65C4662DC881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F1CCA63-F417-4D16-BAE7-65C4662DC881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F1CCA63-F417-4D16-BAE7-65C4662DC881}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
