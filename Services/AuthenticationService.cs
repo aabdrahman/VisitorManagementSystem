@@ -7,14 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Service.Contracts;
 using Shared.DataTransferObjects;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Services;
 
@@ -120,6 +116,35 @@ public class AuthenticationService : IAuthenticationService
 
         return result;
 
+    }
+
+    public async Task<string> ResetPassword(ChangePasswordDto resetPasswordDetails)
+    {
+        var user = await _userManager.FindByNameAsync(resetPasswordDetails.UserName);
+
+        if (user is null)
+        {
+            _loggerManager.LogError($"{nameof(resetPasswordDetails.UserName)}: Authentication Failed for user. Invalid User name.");
+            return string.Empty;
+        }
+
+        _loggerManager.LogInfo($"Removing password for user: {resetPasswordDetails.UserName}");
+        var result = await _userManager.RemovePasswordAsync(user);
+
+        if(!result.Succeeded)
+        {
+            _loggerManager.LogError($"User - {resetPasswordDetails.UserName}: Password Remove Unsuccessful. Error: {string.Join(", ",result.Errors.Select(x => x.Description))}");
+            return "Error removing user password.";
+        }
+
+        var updateResult = await _userManager.AddPasswordAsync(user, resetPasswordDetails.Password);
+
+        if(!updateResult.Succeeded)
+        {
+            _loggerManager.LogError($"User Name: {resetPasswordDetails.UserName} - Error: {string.Join(", ", updateResult.Errors.Select(x => x.Description))}");
+        }
+
+        return "Passwrd Update Successful";
     }
 
     public async Task<TokenDto> GenerateRefreshToken(TokenDto tokenDto)

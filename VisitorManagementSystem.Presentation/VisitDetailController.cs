@@ -5,12 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using VisitorManagementSystem.Presentation.ActionFilters;
 
 namespace VisitorManagementSystem.Presentation;

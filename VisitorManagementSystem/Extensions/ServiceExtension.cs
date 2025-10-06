@@ -26,9 +26,16 @@ public static class ServiceExtension
             options.AddPolicy("defaultPolicy", builder =>
             {
                 builder.AllowAnyOrigin();
-                builder.WithMethods("GET", "POST", "PUT");
+                builder.WithMethods("GET", "POST", "PUT", "OPTIONS");
                 builder.WithHeaders("accept", "content-type")
                 .WithHeaders("X-Pagination");
+            });
+
+            options.AddPolicy("FrontEndPolicy", builder =>
+            {
+                builder.WithMethods("GET", "POST", "PUT", "OPTIONS");
+                builder.WithOrigins("https://localhost:7034", "http://localhost:5285");
+                builder.AllowAnyHeader();
             });
         });
     }

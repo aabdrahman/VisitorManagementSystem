@@ -25,6 +25,14 @@ public class AuthenticationController : ControllerBase
         _serviceManager = serviceManager;
     }
 
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ChangePasswordDto changePasswordDetails)
+    {
+        var result = await _serviceManager.AuthenticationService.ResetPassword(changePasswordDetails);
+
+        return Ok(result);
+    }
+
     [HttpPost("createRole")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     [Authorize(Roles = "ReceptionistPolicy")]

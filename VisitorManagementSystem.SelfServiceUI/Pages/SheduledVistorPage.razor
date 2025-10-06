@@ -1,12 +1,13 @@
 ﻿@page "/scheduled-visit"
 @inject NavigationManager navManager
+@inject GetByIdentificationNumberHandler getByIdentificationNumberHandler
 
 <PageNav Description="Enter your Visitor Identification Number" GoToPreviousPage="HandleGoToPreviousPage">
     <ContentBody>
         <div class="d-flex flex-column justify-content-center align-items-center w-100">
             <div class="form-group d-block w-100 mb-2">
                 <InputText @bind-Value="_visitorIdentificationNumber" class="form-control w-100" />
-                <span class="validation-message" role="alert">@_errorMessage</span>
+                <span class="text-danger" role="alert">@_errorMessage</span>
             </div>
             @if(_isLoading)
             {
@@ -29,9 +30,7 @@
 
 <Popup @ref="popup" Title="Success" SaveChanges="HandleSaveChnages">
     <Body>
-        <p class="fw-bold">
-            @_message
-        </p>
+        <VisitDetail visitDetail="_visitDetail" />
     </Body>
 </Popup>
 
@@ -41,6 +40,7 @@
     private bool _isLoading = false;
     private string _message;
     private Popup popup;
+    private VisitDetailDto _visitDetail = new();
 
     private void HandleGoToPreviousPage()
     {
@@ -49,15 +49,16 @@
 
     private async Task GetDetails()
     {
-        if(!int.TryParse(_visitorIdentificationNumber, out int _))
+        if(string.IsNullOrEmpty(_visitorIdentificationNumber))
         {
-            _errorMessage = "Invalid Input. Visitor Identification MUST be a number";
+            _errorMessage = "Invalid Input. Kindly provide Visitor Identification Number";
         }
-        _isLoading = true;
-        await Task.Delay(4500);
-        _isLoading = false;
-        await Task.Delay(200);
-        popup.Open();
+        else
+        {
+            //_visitDetail = response.visitDetail;
+            _isLoading = false;
+            popup.Open();
+        }
     }
 
     private void ResetForm()

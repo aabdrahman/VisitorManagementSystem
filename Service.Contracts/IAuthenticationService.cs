@@ -17,5 +17,6 @@ public interface IAuthenticationService
     Task<TokenDto> GenerateToken(bool populateExp);
     Task<string> GetLoginUser(string token);
     Task<TokenDto> GenerateRefreshToken(TokenDto tokenDto);
+    Task<string> ResetPassword(ChangePasswordDto resetPasswordDetails);
 
 }

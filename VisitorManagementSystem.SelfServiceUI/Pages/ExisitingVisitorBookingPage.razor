@@ -87,6 +87,7 @@
     private CreateVisitDetailDto _visitDetail;
     private bool isPhoneNumberExists = true;
     private string _errorMessage;
+    private Popup popup;
 
     protected override void OnInitialized()
     {
@@ -109,7 +110,7 @@
     {
         if(arg.Key == "Enter")
         {
-            await Task.Delay(150);
+            //await Task.Delay(150);
             var visitorDetailsResp = await getVisitorHandler.Handle(_visitDetail.VisitorPhoneNumber);
 
             if(visitorDetailsResp.respDetails is null)

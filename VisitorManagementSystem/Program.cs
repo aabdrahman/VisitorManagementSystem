@@ -37,12 +37,23 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseSwagger();
-app.UseSwaggerUI(opts =>
+app.UseSwagger(options =>
 {
-    opts.SwaggerEndpoint("/swagger/v1/swagger.json", "Visitor Management System API");
-    //opts.RoutePrefix = "VisitorManagementSystemApi";
+    options.RouteTemplate = "VisitorManagementSystemAPI/swagger/{documentname}/swagger.json";
 });
+
+app.UseSwaggerUI(options =>
+{
+    options.RoutePrefix = "VisitorManagementSystemAPI/swagger";
+    options.SwaggerEndpoint("/VisitorManagementSystemAPI/swagger/v1/swagger.json", "Hotel Management Api");
+});
+
+//app.UseSwagger();
+//app.UseSwaggerUI(opts =>
+//{
+//    opts.SwaggerEndpoint("/swagger/v1/swagger.json", "Visitor Management System API");
+//    //opts.RoutePrefix = "VisitorManagementSystemApi";
+//});
 
 app.UseExceptionHandler(opts => { });
 
@@ -55,7 +66,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseRateLimiter();
-app.UseCors("defaultPolicy");
+app.UseCors("FrontEndPolicy");
 //app.UseOutputCache();
 app.UseResponseCaching();
 
