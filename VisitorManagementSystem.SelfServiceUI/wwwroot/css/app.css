@@ -45,6 +45,15 @@ main {
     text-align: center;
 }
 
+.text-danger {
+    color: red;
+    font-family: "Story Script", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    text-align: center;
+    margin-top: 15px;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
