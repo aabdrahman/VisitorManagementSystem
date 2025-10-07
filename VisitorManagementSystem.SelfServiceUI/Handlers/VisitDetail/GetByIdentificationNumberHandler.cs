@@ -23,7 +23,7 @@ public class GetByIdentificationNumberHandler
             {
                 var responseCont = await response.Content.ReadAsStringAsync();
 
-                var responseBody = JsonSerializer.Deserialize<Response>(responseCont);
+                var responseBody = JsonSerializer.Deserialize<Response>(responseCont, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
 
                 return (respMsg: responseBody?.ResponseMessage ?? "", null);
             }
@@ -31,7 +31,7 @@ public class GetByIdentificationNumberHandler
             {
                 var responseCont = await response.Content.ReadAsStringAsync();
 
-                var responseBody = JsonSerializer.Deserialize<VisitDetailDto>(responseCont);
+                var responseBody = JsonSerializer.Deserialize<VisitDetailDto>(responseCont, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
 
                 return (respMsg: "Success", visitDetail: responseBody);
             }

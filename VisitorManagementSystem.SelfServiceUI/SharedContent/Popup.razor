@@ -28,17 +28,23 @@
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-between align-items-center">
                 <h5 class="modal-title">@Title</h5>
-                <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+                @if(ShowFooter)
+                {
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+                }
             </div>
 
             <div class="modal-body">
                 @Body
             </div>
 
-            <div class="modal-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
-                <button type="button" class="btn btn-primary" @onclick="HandleSaveChanges">Save changes</button>
-            </div>
+            @if(ShowFooter)
+            {
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="HandleSaveChanges">Save changes</button>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -52,6 +58,9 @@
 @code {
     [Parameter, EditorRequired]
     public string Title { get; set; }
+
+    [Parameter]
+    public bool ShowFooter { get; set; } = true;
 
     [Parameter]
     public RenderFragment Body { get; set; }

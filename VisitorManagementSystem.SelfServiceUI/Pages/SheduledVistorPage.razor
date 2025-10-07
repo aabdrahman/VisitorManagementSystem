@@ -28,7 +28,7 @@
     </ContentBody>
 </PageNav>
 
-<Popup @ref="popup" Title="Success" SaveChanges="HandleSaveChnages">
+<Popup @ref="popup" Title="Visitor Self Check In" ShowFooter="false" SaveChanges="HandleSaveChnages">
     <Body>
         <VisitDetail visitDetail="_visitDetail" />
     </Body>
@@ -55,10 +55,27 @@
         }
         else
         {
-            //_visitDetail = response.visitDetail;
+            _isLoading = true; _errorMessage = null;
+            await HandleGetDetails();
             _isLoading = false;
+
+        }
+    }
+
+    private async Task HandleGetDetails()
+    {
+        var getDetailsResponse = await getByIdentificationNumberHandler.Handle(_visitorIdentificationNumber);
+
+        if(getDetailsResponse.visitDetail is null)
+        {
+            _errorMessage = getDetailsResponse.respMsg;
+        }
+        else
+        {
+            _visitDetail = getDetailsResponse.visitDetail;
             popup.Open();
         }
+
     }
 
     private void ResetForm()
@@ -66,6 +83,7 @@
         _visitorIdentificationNumber = null;
         _errorMessage = null;
         _isLoading = false;
+        _visitDetail = new();
     }
 
     private void HandleSaveChnages()

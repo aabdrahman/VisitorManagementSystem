@@ -23706,3 +23706,12 @@
 2025-10-06 22:05:34.7186 Trace FileTarget(Name=logfile) has 2 layouts
 2025-10-06 22:05:34.7186 Trace FileTarget(Name=logfile): Using appenderFactory: NLog.Internal.FileAppenders.SingleProcessFileAppender+Factory
 2025-10-06 22:05:34.7333 Info Configuration initialized.
+2025-10-07 07:58:40.9106 Debug Targets configured when LogLevel >= Debug for Logger: LoggerManager.AppLoggerManager
+2025-10-07 07:58:40.9338 Debug Logger LoggerManager.AppLoggerManager [Debug] => logfile console
+2025-10-07 07:58:40.9415 Debug Logger LoggerManager.AppLoggerManager [Info] => logfile console
+2025-10-07 07:58:40.9415 Debug Logger LoggerManager.AppLoggerManager [Warn] => logfile console
+2025-10-07 07:58:40.9548 Debug Logger LoggerManager.AppLoggerManager [Error] => logfile console
+2025-10-07 07:58:40.9548 Debug Logger LoggerManager.AppLoggerManager [Fatal] => logfile console
+2025-10-07 07:58:41.0545 Debug FileTarget(Name=logfile): Preparing for new file: 'C:\Users\abdrahman.akande\source\repos\VisitorManagementSystem\VisitorManagementSystem\bin\Debug\net8.0\.\logs\2025-10-07_logfile.txt'
+2025-10-07 07:58:41.0819 Debug FileTarget(Name=logfile): Creating file appender: 'C:\Users\abdrahman.akande\source\repos\VisitorManagementSystem\VisitorManagementSystem\bin\Debug\net8.0\.\logs\2025-10-07_logfile.txt'
+2025-10-07 07:58:41.0942 Trace FileTarget(Name=logfile): Opening C:\Users\abdrahman.akande\source\repos\VisitorManagementSystem\VisitorManagementSystem\bin\Debug\net8.0\.\logs\2025-10-07_logfile.txt with allowFileSharedWriting=False
