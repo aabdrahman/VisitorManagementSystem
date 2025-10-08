@@ -21,6 +21,7 @@ builder.Services.AddScoped<GetVisitorHandler>();
 builder.Services.AddScoped<GetByIdentificationNumberHandler>();
 builder.Services.AddScoped<TokenHandler>();
 builder.Services.AddScoped<ScheduledVisitCheckinHandler>();
+builder.Services.AddScoped<CreateWalkinHander>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

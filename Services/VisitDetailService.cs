@@ -62,7 +62,12 @@ public class VisitDetailService : IVisitDetailService
         visitDetail.CreatedDate = DateTime.UtcNow;
         visitDetail.VisitorIdentificationNumber = GenerateVisitorIdentificationNumber();
 
+        var visitor = new CreateVisitorDto(VisitorName: createVisitDetail.VisitorName, PhoneNumber: createVisitDetail.VisitorPhoneNumber, EmailAdddress: createVisitDetail.VisitorEmailAddress);
+
+        var visitorToInsert = _mapper.Map<Visitor>(visitor);
+
         _repositoryManager.VisitDetailRepository.CreateVisitetail(visitDetail);
+        _repositoryManager.VisitorRepository.Create(visitorToInsert);
 
         await _repositoryManager.SaveChanges();
         _loggerManager.LogInfo($"Visit detail Created. Visitor Identification Number: {visitDetail.VisitorIdentificationNumber}");

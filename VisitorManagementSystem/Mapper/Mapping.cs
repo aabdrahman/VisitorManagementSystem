@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Entities.Model;
+using Entities.StaticValues;
 using Shared.DataTransferObjects;
 
 namespace VisitorManagementSystem.Mapper;
@@ -16,7 +17,16 @@ public class Mapping : Profile
             .ForMember(x => x.PhoneNumber, src => src.MapFrom(y => y.VisitorPhoneNumber))
             .ForMember(x => x.EmailAddress, src => src.MapFrom(y => y.VisitorEmailAddress))
             .ForMember(x => x.VisitorName, src => src.MapFrom(y => y.VisitorName));
-        CreateMap<CreateVisitDetailDto, VisitDetail>();
+        CreateMap<CreateVisitDetailDto, VisitDetail>()
+            .ForMember(dest => dest.VisitorPhoneNumber, src => src.MapFrom(x => x.VisitorPhoneNumber))
+            .ForMember(dest => dest.VisitorEmailAddress, src => src.MapFrom(x => x.VisitorEmailAddress))
+            .ForMember(dest => dest.HostName, src => src.MapFrom(x => x.HostName))
+            .ForMember(dest => dest.VisitorName, src => src.MapFrom(x => x.VisitorName))
+            .ForMember(dest => dest.VisitationDate, src => src.MapFrom(x => x.VisitationDate))
+            .ForMember(dest => dest.PurposeOfVisit, src => src.MapFrom(x => x.PurposeOfVisit))
+            .ForMember(dest => dest.VisitorGender, src => src.MapFrom(x => Enum.Parse(typeof(Gender), x.VisitorGender, true)))
+            .ForMember(dest => dest.VisitorRegistrationType, src => src.MapFrom(x => Enum.Parse(typeof(VisitorRegistrationTypes), x.VisitorRegistrationType, true)))
+            .ForMember(dest => dest.VisitType, src => src.MapFrom(x => Enum.Parse(typeof(VisitType), x.VisitType, true)));
         CreateMap<ScheduleVisitDetailDto, VisitDetail>()
             .ForMember(dest => dest.VisitType, src => src.MapFrom(x => x.VisitType))
             .ForMember(dest => dest.VisitorRegistrationType, src => src.MapFrom(x => x.VisitorRegistrationType))

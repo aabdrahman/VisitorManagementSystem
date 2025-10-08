@@ -1,10 +1,25 @@
 ﻿@page "/new-visitor-booking"
 @inject NavigationManager navManager
+@inject CreateWalkinHander createWalkinHander
 
 <PageNav Description="Kindly fill below form" GoToPreviousPage="HandleGoToPreviousPage">
     <ContentBody>
         <EditForm EditContext="_editContext" OnValidSubmit="SubmitForm">
             <DataAnnotationsValidator />
+
+            @if(!_isSuccessful && _message is not null)
+            {
+                <div class="d-flex justify-content-start">
+                    <span class="text-danger" role="alert">@_message</span>
+                </div>
+            }
+            else if(_isSuccessful && _message is not null)
+            {
+                <div class="d-flex justify-contnet-start">
+                    <span class="text-success" role="alert">@_message</span>
+                </div>
+            }
+
             <div class="row">
                 <div class="form-group text-start mb-2">
                     <label for="name" class="form-label">Visitor Name:</label>
@@ -17,8 +32,8 @@
                     <ValidationMessage For="(() => _visitDetail.VisitorPhoneNumber)" />
                 </div>
                 <div class="form-group text-start mb-2">
-                    <label for="phoneNumber" class="form-label">Email Address:</label>
-                    <InputText id="phoneNumber" class="form-control" @bind-Value="_visitDetail.VisitorEmailAddress"  />
+                    <label for="emailaddress" class="form-label">Email Address:</label>
+                    <InputText id="emailaddress" class="form-control" @bind-Value="_visitDetail.VisitorEmailAddress" />
                     <ValidationMessage For="(() => _visitDetail.VisitorEmailAddress)" />
                 </div>
                 <div class="form-group text-start mb-2">
@@ -46,10 +61,23 @@
                     <InputText id="hostname" class="form-control" @bind-Value="_visitDetail.HostName"  />
                     <ValidationMessage For="(() => _visitDetail.HostName)" />
                 </div>
-                <div class="form-group d-flex justify-content-between align-items-center">
-                    <button class="btn btn-secondary" type="button" role="button" @onclick="ResetForm">Clear</button>
-                    <button class="btn btn-primary" type="submit" role="button">Submit</button>
-                </div>
+                @if(_isLoading)
+                {
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
+                            <span role="status">Loading...</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group d-flex justify-content-between align-items-center">
+                        <button class="btn btn-secondary" type="button" role="button" @onclick="ResetForm">Clear</button>
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+                }
+
             </div>
         </EditForm>
     </ContentBody>
@@ -58,23 +86,44 @@
 @code {
     private EditContext _editContext;
     private CreateVisitDetailDto _visitDetail;
+    private bool _isLoading = false;
+    private string _message;
+    private bool _isSuccessful;
 
     protected override void OnInitialized()
     {
         _visitDetail = new();
+        _visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        _visitDetail.VisitType = VisitType.WalkIn.ToString();
+        _visitDetail.VisitorRegistrationType = VisitorRegistrationTypes.FirstTime.ToString();
         _editContext = new EditContext(_visitDetail);
     }
 
     private async Task SubmitForm()
     {
-        _visitDetail.VisitType = VisitType.WalkIn.ToString();
-        _visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
-        _visitDetail.VisitorRegistrationType = VisitorRegistrationTypes.FirstTime.ToString();
+        _isLoading = true;
+        var response = await createWalkinHander.Handle(_visitDetail);
+        if(response is null || response.ResponseCode != "00")
+        {
+            _isSuccessful = false;_isLoading = false;
+            _message = response?.ResponseMessage ?? "An Error Occured.";
+            ResetForm();
+        }
+        else
+        {
+            _isSuccessful = true; _isLoading = false;
+            _message = response?.ResponseMessage ?? "Submission Successful";
+            await Task.Delay(800);
+            navManager.NavigateTo("/");
+        }
     }
 
     private void ResetForm()
     {
         _visitDetail = new();
+        _visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        _visitDetail.VisitType = VisitType.WalkIn.ToString();
+        _visitDetail.VisitorRegistrationType = VisitorRegistrationTypes.FirstTime.ToString();
         _editContext = new EditContext(_visitDetail);
     }
 
