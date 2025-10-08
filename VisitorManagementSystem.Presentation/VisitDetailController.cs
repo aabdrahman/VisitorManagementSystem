@@ -51,6 +51,24 @@ public class VisitDetailController : ControllerBase
         //return Ok(result);
     }
 
+    [HttpPost("update-status")]
+    [Authorize(Policy = "ReceptionistPolicy")]
+    public async Task<IActionResult> UpdateVisitStatus([FromBody] UpdateVisitStatusDto updateVisitStatus)
+    {
+        var response = await _serviceManager.VisitDetailService.UpdateStatus(updateVisitStatus);
+
+        return Ok(response);
+    }
+
+    [HttpPost("create-walkin")]
+    [Authorize(Policy = "ReceptionistPolicy")]
+    public async Task<IActionResult> CreateWalkIn([FromBody] CreateVisitDetailDto createVisitDetail)
+    {
+        var result = await _serviceManager.VisitDetailService.CreateVisit(createVisitDetail);
+
+        return Ok(result);
+    }
+
     [HttpPut("checkIn")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     [Authorize(Policy = "ReceptionistPolicy")]

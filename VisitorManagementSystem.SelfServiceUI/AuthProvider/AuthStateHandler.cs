@@ -1,36 +1,49 @@
-﻿using Shared.DataTransferObjects;
+﻿using Blazored.LocalStorage;
+using Shared.DataTransferObjects;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using VisitorManagementSystem.SelfServiceUI.Handlers.Authentication;
 
 namespace VisitorManagementSystem.SelfServiceUI.AuthProvider;
 
 public class AuthStateHandler : DelegatingHandler
 {
-    private readonly IHttpClientFactory _httpClientFactory; 
-    public AuthStateHandler(IHttpClientFactory httpClientFactory)
+    private readonly TokenHandler _tokenHandler;
+    private readonly ILocalStorageService _localStorageService;
+    public AuthStateHandler(TokenHandler tokenHandler, ILocalStorageService localStorageService)
     {
-        _httpClientFactory = httpClientFactory;
+        _tokenHandler = tokenHandler;
+        _localStorageService = localStorageService;
     }
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Fetching in Authentication State Handler....");
-        var userToLogin = new UserToLoginDto() { UserName = "SYSTEM.SYSTEM", Password = "String$22" };
 
-        var getTokenResp = await _httpClientFactory.CreateClient("ApiClient").PostAsJsonAsync("api/authentication/login", userToLogin);
+        var tokenDetails = await _localStorageService.GetItemAsync<TokenDto>("access-token");
 
-        getTokenResp.EnsureSuccessStatusCode();
+        if(tokenDetails is null)
+        {
+            await _tokenHandler.Handle();
+        }
 
-        var tokenDetailsContent = await getTokenResp.Content.ReadAsStringAsync();
-        Console.WriteLine($"Fetching Content: {tokenDetailsContent}");
-        var tokenDetails = JsonSerializer.Deserialize<TokenDto>(tokenDetailsContent, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-
-        //var token = await _localStorageService.GetItemAsync<string>("accessToken");
-        if (!string.IsNullOrWhiteSpace(tokenDetails.AccessToken))
+        if (!string.IsNullOrWhiteSpace(tokenDetails?.AccessToken))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenDetails.AccessToken);
         }
 
-        return await base.SendAsync(request, cancellationToken);
+        var result = await base.SendAsync(request, cancellationToken);
+
+        if(result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            await _tokenHandler.Handle();
+            tokenDetails = await _localStorageService.GetItemAsync<TokenDto>("access-token");
+
+            if(tokenDetails is null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenDetails?.AccessToken);
+            }
+        }
+
+        return result;
     }
 }

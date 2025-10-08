@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Model;
+using Entities.Response;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Services;
@@ -47,6 +49,51 @@ public class VisitDetailService : IVisitDetailService
             throw new VisitDetailNotFoundException(visitorIdentificationNumber);
 
         return _mapper.Map<VisitDetailDto>(visitDetailRecord);
+    }
+
+    public async Task<Response> CreateVisit(CreateVisitDetailDto createVisitDetail)
+    {
+        _loggerManager.LogInfo($"Creating record for: {JsonSerializer.Serialize(createVisitDetail)}");
+        var visitDetail = _mapper.Map<VisitDetail>(createVisitDetail);
+        visitDetail.VisitStatus = Entities.StaticValues.VisitStatus.Pending;
+        visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        visitDetail.VisitType = Entities.StaticValues.VisitType.WalkIn;
+        visitDetail.VisitorRegistrationType = Entities.StaticValues.VisitorRegistrationTypes.FirstTime;
+        visitDetail.CreatedDate = DateTime.UtcNow;
+        visitDetail.VisitorIdentificationNumber = GenerateVisitorIdentificationNumber();
+
+        _repositoryManager.VisitDetailRepository.CreateVisitetail(visitDetail);
+
+        await _repositoryManager.SaveChanges();
+        _loggerManager.LogInfo($"Visit detail Created. Visitor Identification Number: {visitDetail.VisitorIdentificationNumber}");
+        var visitDetailToReturn = _mapper.Map<VisitDetailDto>(visitDetail);
+        return Response.CreateSuccessResponse(visitDetailToReturn, $"Visit Created. Identification Number: {visitDetail.VisitorIdentificationNumber}");
+    }
+
+    public async Task<Response> UpdateStatus(UpdateVisitStatusDto updateVisitDetailStatus)
+    {
+        _loggerManager.LogInfo($"Updating Visit Status for: {JsonSerializer.Serialize(updateVisitDetailStatus)}");
+        var existingVisitDetail = await CheckVisitExists(updateVisitDetailStatus.VisitorIdentificationNumber, true, false);
+
+        if(existingVisitDetail is null)
+        {
+            _loggerManager.LogWarning($"No visit detail for Visitor Identification Number: {updateVisitDetailStatus.VisitorIdentificationNumber}");
+            return Response.CreateErrorResponse(null, $"No Visit for provided Id: {updateVisitDetailStatus.VisitorIdentificationNumber}", "99");
+        }
+
+        if(existingVisitDetail.VisitStatus == Entities.StaticValues.VisitStatus.CheckedOut)
+        {
+            _loggerManager.LogWarning($"Provided Visit Detail has an invalid status: {existingVisitDetail.VisitStatus}");
+            return Response.CreateErrorResponse(null, $"Invalid Id provided: Status: {existingVisitDetail.VisitStatus.ToString()}", "90");
+        }
+
+        existingVisitDetail.VisitStatus = updateVisitDetailStatus.UpdatedStatus;
+
+        _repositoryManager.VisitDetailRepository.UpdateRecord(existingVisitDetail);
+        _loggerManager.LogInfo($"Updating Visit Status for: {updateVisitDetailStatus.VisitorIdentificationNumber} to {updateVisitDetailStatus.UpdatedStatus.ToString()}");
+        await _repositoryManager.SaveChanges();
+
+        return Response.CreateSuccessResponse("", "Updated Successfully");
     }
 
     public async Task<VisitDetailDto> ScheduleVisit(ScheduleVisitDetailDto scheduledVisit)
@@ -149,4 +196,6 @@ public class VisitDetailService : IVisitDetailService
 
         return visitorIdentificationNumber;
     }
+
+    
 }

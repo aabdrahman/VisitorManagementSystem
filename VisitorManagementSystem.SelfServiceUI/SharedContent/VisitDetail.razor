@@ -4,7 +4,12 @@
         <h4 class="mb-0">Visit Details</h4>
         <span class="badge bg-dark fs-6">@visitDetail.VisitorIdentificationNumber</span>
     </div>
-
+   @if(!isSuccessful)
+    {
+        <div class="d-flex">
+            <span class="text-danger" role="alert">@Message</span>
+        </div>
+    }
     <div class="card-body">
         <dl class="row mb-0">
             <dt class="col-sm-4">Visitor Name:</dt>
@@ -31,7 +36,7 @@
     </div>
 
     <div class="card-footer d-flex justify-content-end">
-        <button class="btn btn-primary px-4">
+        <button class="btn btn-primary px-4" @onclick="HandleCheckIn">
             Proceed to Check-in
         </button>
     </div>
@@ -44,11 +49,26 @@
     [Parameter, EditorRequired]
     public VisitDetailDto visitDetail { get; set; }
 
+    [Parameter, EditorRequired]
+    public EventCallback CheckIn { get; set; }
+
+    [Parameter]
+    public string Message { get; set; } = string.Empty;
+    [Parameter]
+    public string ErrorMessage { get; set; } = string.Empty;
+    [Parameter]
+    public bool isSuccessful { get; set; }
+
     protected override void OnParametersSet()
     {
         if(visitDetail is not null)
         {
             base.OnParametersSet();
         }
+    }
+
+    private async Task HandleCheckIn()
+    {
+        await CheckIn.InvokeAsync();
     }
 }
