@@ -1,10 +1,11 @@
 ﻿@page "/existing-vistor-booking"
 @inject NavigationManager navManager
 @inject GetVisitorHandler getVisitorHandler
-
+@inject CreateWalkinHander createWalkinHander
 
 <PageNav Description="@description" GoToPreviousPage="HandleGoToPreviousPage">
     <ContentBody>
+
         <EditForm EditContext="_editContext" OnValidSubmit="OnSubmit">
             <DataAnnotationsValidator />
             <div class="row">
@@ -14,6 +15,7 @@
                     <label class="form-label" for="phoneNumber">Enter your phone number:</label>
                     <InputText class="form-control" id="phoneNumber"
                                @bind-Value="_visitDetail.VisitorPhoneNumber"
+                               @onchange="OnChangePhoneNumber"
                                @onkeypress="GetVisitorByPhoneNumber" />
                     <span class="text-danger" role="alert">@_errorMessage</span>
                 </div>
@@ -72,15 +74,34 @@
                     </div>
 
                     <!-- Buttons -->
-                    <div class="form-group d-flex justify-content-between align-items-center mt-3">
-                        <button class="btn btn-secondary" type="button" @onclick="ResetForm">Clear</button>
-                        <button class="btn btn-primary" type="submit">Submit</button>
-                    </div>
+                    @if(_isLoading)
+                    {
+                        <div class="d-flex justify-content-end align-items-center">
+                            <button class="btn btn-primary" type="button" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Loading...
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                            <button class="btn btn-secondary" type="button" @onclick="ResetForm">Clear</button>
+                            <button class="btn btn-primary" type="submit">Submit</button>
+                        </div>
+                    }
                 }
             </div>
         </EditForm>
     </ContentBody>
 </PageNav>
+
+<Popup @ref="popup" Title="Visit Details" ShowFooter="false">
+    <Body>
+        <CreatedVisitDetail visitDetail="_detail" Proceed="@(() => navManager.NavigateTo("/"))" />
+    </Body>
+</Popup>
+
 @code {
     private string description = "Kindly fill below form";
     private EditContext _editContext;
@@ -88,11 +109,17 @@
     private bool isPhoneNumberExists = true;
     private string _errorMessage;
     private Popup popup;
+    private bool _isLoading;
+    private bool _isSuccessful;
+    private string _message;
+    private VisitDetailDto _detail = new();
 
     protected override void OnInitialized()
     {
         _visitDetail = new();
         _visitDetail.VisitorRegistrationType = VisitorRegistrationTypes.Recurring.ToString();
+        _visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        _visitDetail.VisitType = VisitType.WalkIn.ToString();
         _editContext = new EditContext(_visitDetail);
     }
 
@@ -103,7 +130,22 @@
 
     private async Task OnSubmit()
     {
-
+        _isLoading = true;
+        var response = await createWalkinHander.Handle(_visitDetail);
+        if (response is null || response.ResponseCode != "00")
+        {
+            _isSuccessful = false; _isLoading = false;
+            _message = response?.ResponseMessage ?? "An Error Occured.";
+            ResetForm();
+        }
+        else
+        {
+            _isSuccessful = true; _isLoading = false;
+            _message = response?.ResponseMessage ?? "Submission Successful";
+            var serializedData = JsonSerializer.Serialize(response?.ResponseData);
+            _detail = JsonSerializer.Deserialize<VisitDetailDto>(serializedData, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }) ?? new();
+            popup.Open();
+        }
     }
 
     private async Task GetVisitorByPhoneNumber(KeyboardEventArgs arg)
@@ -111,6 +153,7 @@
         if(arg.Key == "Enter")
         {
             //await Task.Delay(150);
+            _errorMessage = null;
             var visitorDetailsResp = await getVisitorHandler.Handle(_visitDetail.VisitorPhoneNumber);
 
             if(visitorDetailsResp.respDetails is null)
@@ -130,10 +173,17 @@
         }
     }
 
+    private void OnChangePhoneNumber(ChangeEventArgs eventArgs)
+    {
+        _visitDetail.VisitorPhoneNumber = eventArgs?.Value?.ToString() ?? "";
+    }
+
     private void ResetForm()
     {
         _visitDetail = new();
         _visitDetail.VisitorRegistrationType = VisitorRegistrationTypes.Recurring.ToString();
+        _visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        _visitDetail.VisitType = VisitType.WalkIn.ToString();
         _editContext = new EditContext(_visitDetail);
         _errorMessage = null;
     }

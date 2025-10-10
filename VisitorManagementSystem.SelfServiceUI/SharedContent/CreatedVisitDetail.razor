@@ -1,0 +1,48 @@
+﻿<div class="d-flex flex-column align-items-center justify-content-center w-100 h-100 p-3 border rounded shadow-sm">
+    <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+        <span><i class="bi bi-person"></i> Name:</span>
+        <span class="fw-bold">@visitDetail.VisitorName</span>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+        <span><i class="bi bi-at"></i> Email Address:</span>
+        <span class="fw-bold">@visitDetail.VisitorEmailAddress</span>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+        <span><i class="bi bi-telephone"></i> Phone Number:</span>
+        <span class="fw-bold">@visitDetail.VisitorPhoneNumber</span>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+        <span><i class="bi bi-calendar-check"></i> Visitation Date:</span>
+        <span class="fw-bold">@visitDetail.VisitDate.ToString("D")</span>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+        <span><i class="bi bi-person-square"></i> Host Name:</span>
+        <span class="fw-bold">@visitDetail.HostName</span>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center w-100 mb-3">
+        <span><i class="bi bi-lightning-charge"></i> Visitor Identification Number:</span>
+        <span class="fw-bold">@visitDetail.VisitorIdentificationNumber</span>
+    </div>
+
+    <div class="d-flex justify-content-center w-100">
+        <button class="btn btn-primary w-100" @onclick="HandleProceed">Proceed</button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public VisitDetailDto visitDetail { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback Proceed { get; set; }
+
+    private async Task HandleProceed()
+    {
+        await Proceed.InvokeAsync();
+    }
+}
