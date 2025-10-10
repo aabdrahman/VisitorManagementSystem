@@ -55,23 +55,23 @@ public class VisitDetailService : IVisitDetailService
     {
         _loggerManager.LogInfo($"Creating record for: {JsonSerializer.Serialize(createVisitDetail)}");
         var visitDetail = _mapper.Map<VisitDetail>(createVisitDetail);
-        //visitDetail.VisitStatus = Entities.StaticValues.VisitStatus.Pending;
+        visitDetail.VisitStatus = Entities.StaticValues.VisitStatus.Pending;
         //visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
         //visitDetail.VisitType = Entities.StaticValues.VisitType.WalkIn;
         //visitDetail.VisitorRegistrationType = Entities.StaticValues.VisitorRegistrationTypes.FirstTime;
         //visitDetail.CreatedDate = DateTime.UtcNow;
         visitDetail.VisitorIdentificationNumber = GenerateVisitorIdentificationNumber();
 
-        var visitor = new CreateVisitorDto(VisitorName: createVisitDetail.VisitorName, PhoneNumber: createVisitDetail.VisitorPhoneNumber, EmailAdddress: createVisitDetail.VisitorEmailAddress);
-
-        var visitorToInsert = _mapper.Map<Visitor>(visitor);
-
         if(visitDetail.VisitorRegistrationType == Entities.StaticValues.VisitorRegistrationTypes.FirstTime)
         {
-            _repositoryManager.VisitDetailRepository.CreateVisitetail(visitDetail);
+            var visitor = new CreateVisitorDto(VisitorName: createVisitDetail.VisitorName, PhoneNumber: createVisitDetail.VisitorPhoneNumber, EmailAdddress: createVisitDetail.VisitorEmailAddress);
+
+            var visitorToInsert = _mapper.Map<Visitor>(visitor);
+
             _repositoryManager.VisitorRepository.Create(visitorToInsert);
         }
 
+        _repositoryManager.VisitDetailRepository.CreateVisitetail(visitDetail);
 
         await _repositoryManager.SaveChanges();
         _loggerManager.LogInfo($"Visit detail Created. Visitor Identification Number: {visitDetail.VisitorIdentificationNumber}");

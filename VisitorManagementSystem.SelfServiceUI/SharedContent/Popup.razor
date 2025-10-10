@@ -28,7 +28,7 @@
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-between align-items-center">
                 <h5 class="modal-title">@Title</h5>
-                @if(ShowFooter)
+                @if(ShowCloseButton)
                 {
                     <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
                 }
@@ -58,6 +58,9 @@
 @code {
     [Parameter, EditorRequired]
     public string Title { get; set; }
+
+    [Parameter]
+    public bool ShowCloseButton { get; set; } = false;
 
     [Parameter]
     public bool ShowFooter { get; set; } = true;

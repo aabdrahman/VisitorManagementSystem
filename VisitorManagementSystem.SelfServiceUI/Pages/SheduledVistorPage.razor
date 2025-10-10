@@ -7,7 +7,7 @@
     <ContentBody>
         <div class="d-flex flex-column justify-content-center align-items-center w-100">
             <div class="form-group d-block w-100 mb-2">
-                <InputText @bind-Value="_visitorIdentificationNumber" class="form-control w-100" />
+                <InputText @bind-Value="_visitorIdentificationNumber" @onchange="OnChangeVin" class="form-control w-100" />
                 <span class="text-danger" role="alert">@_errorMessage</span>
             </div>
             @if(_isLoading)
@@ -53,6 +53,7 @@
 
     private async Task GetDetails()
     {
+        _errorMessage = null;
         if(string.IsNullOrEmpty(_visitorIdentificationNumber))
         {
             _errorMessage = "Invalid Input. Kindly provide Visitor Identification Number";
@@ -97,6 +98,11 @@
             popup.Open();
         }
 
+    }
+
+    private void OnChangeVin(ChangeEventArgs eventArgs)
+    {
+        _visitorIdentificationNumber = eventArgs?.Value?.ToString() ?? "";
     }
 
     private void ResetForm()

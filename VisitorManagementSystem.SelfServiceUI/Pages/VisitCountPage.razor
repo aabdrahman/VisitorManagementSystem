@@ -10,11 +10,24 @@
     </ContentBody>
 </PageNav>
 
+<Popup @ref="popup" Title="Upcoming functionality" ShowFooter="false" ShowCloseButton="true">
+    <Body>
+        <div class="d-flex justify-content-center align-items-center flex-column w-100 h-100">
+            <h6 class="w-100 text-center">Upcoming Feature</h6>
+            <p class="fst-italic text-info fw-bold text-wrap text-center">
+                The group visit functionality is not implemented yet.
+            </p>
+        </div>
+    </Body>
+</Popup>
+
+
 @code {
+    private Popup popup;
 
     private void HandleRightClicked()
     {
-
+        popup.Open();
     }
 
     private void HandleLeftClicked()
