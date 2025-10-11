@@ -25,7 +25,6 @@
     <ProjectReference Include="..\LoggerManager\LoggerManager.csproj" />
     <ProjectReference Include="..\Repository\Repository.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
-    <ProjectReference Include="..\VisitorManagementSystem.Presentation\VisitorManagementSystem.Presentation.csproj" />
   </ItemGroup>
 
 </Project>
