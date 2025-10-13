@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using VisitorManagementSystem.Client.Helpers;
 using VisitorManagementSystem.Presentation.Helpers;
+using System.Text.Json;
 
 namespace VisitorManagementSystem.Client.AuthenticationProvider;
 
@@ -26,6 +27,7 @@ public class AuthStateProvider : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         _tokenDto = await _localStorageService.GetItemAsync<TokenDto>(ClientHelper.StorageKey) ?? null;
+        Console.WriteLine($"{JsonSerializer.Serialize(_tokenDto)}");
 
         if(_tokenDto is null)
         {
@@ -42,7 +44,9 @@ public class AuthStateProvider : AuthenticationStateProvider
             return _anonymous;
         }
 
-        if(DateTimeOffset.UtcNow >= DateTimeOffset.FromUnixTimeMilliseconds(expiredTimestamp))
+        var expTime = DateTimeOffset.FromUnixTimeSeconds(expiredTimestamp);
+
+        if(DateTimeOffset.UtcNow >= expTime)
         {
             await _localStorageService.RemoveItemAsync(ClientHelper.StorageKey);
             return _anonymous;

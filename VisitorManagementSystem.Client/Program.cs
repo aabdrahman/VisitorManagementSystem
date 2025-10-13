@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using VisitorManagementSystem.Client;
 using VisitorManagementSystem.Client.AuthenticationProvider;
+using VisitorManagementSystem.Client.Handler.Authentication;
 using VisitorManagementSystem.Presentation.Helpers;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -14,6 +15,8 @@ builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddTransient<AuthStateHandler>();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
+
+builder.Services.AddScoped<AuthenticationSigninHandler>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

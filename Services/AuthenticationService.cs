@@ -245,7 +245,12 @@ public class AuthenticationService : IAuthenticationService
     {
         var claims = new List<Claim>()
         {
-            new Claim(ClaimTypes.Name, loginUser?.UserName!)
+            new Claim(ClaimTypes.Name, loginUser?.UserName!),
+            new Claim(ClaimTypes.Email, loginUser?.Email!),
+            new Claim(ClaimTypes.NameIdentifier, loginUser?.StaffId!),
+            new Claim(ClaimTypes.SerialNumber, loginUser?.Id?.ToString()!),
+            new Claim("FirstName", loginUser?.FirstName!),
+            new Claim("LastName", loginUser?.LastName!)
         };
         var roles = await _userManager.GetRolesAsync(loginUser!);
 
