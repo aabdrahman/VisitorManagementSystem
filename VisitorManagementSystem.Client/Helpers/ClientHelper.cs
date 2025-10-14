@@ -6,4 +6,5 @@ public static class ClientHelper
     public static string OpenClientKey = "ApiClient";
     public static string SecureClientKey = "SecureClient";
     public static string BaseUri = "https://localhost:44369/";
+    public static double GetRefreshTokenWindow = 90;
 }
