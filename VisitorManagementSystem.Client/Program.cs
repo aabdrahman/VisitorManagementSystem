@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using VisitorManagementSystem.Client;
 using VisitorManagementSystem.Client.AuthenticationProvider;
 using VisitorManagementSystem.Client.Handler.Authentication;
-using VisitorManagementSystem.Presentation.Helpers;
+using VisitorManagementSystem.Client.Handler.Visit;
+using VisitorManagementSystem.Client.Helpers;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -18,6 +19,7 @@ builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<AuthenticationSigninHandler>();
 builder.Services.AddScoped<RefreshTokenHandler>();
+builder.Services.AddScoped<GetVisitsHandler>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
@@ -29,6 +31,7 @@ builder.Services.AddHttpClient(ClientHelper.OpenClientKey, opts =>
 builder.Services.AddHttpClient(ClientHelper.SecureClientKey, opts =>
 {
     opts.BaseAddress = new Uri(ClientHelper.BaseUri);
+    opts.Timeout = TimeSpan.FromSeconds(10);
 
 }).AddHttpMessageHandler<AuthStateHandler>();
 

@@ -1,0 +1,40 @@
+﻿
+
+@if(Visits.Count() > 0)
+{
+    <div class="d-flex justify-content-center align-items-center py-2">
+        <table class="table table-hover mt-3">
+            <thead>
+                <tr>
+                    @foreach (var item in typeof(VisitDetailDto).GetMembers().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).Select(x => x.Name))
+                    {
+                        <th scope="col">@item</th>
+                    }
+                    <th scope="col">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var visit in Visits)
+                {
+                    <tr>
+                        @foreach (var member in typeof(VisitDetailDto).GetMembers().Where(x => x.MemberType == System.Reflection.MemberTypes.Property))
+                        {
+
+                            <td>@visit.GetType().GetProperty(member.Name)?.GetValue(visit)</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<VisitDetailDto> Visits { get; set; } = [];
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+    }
+}

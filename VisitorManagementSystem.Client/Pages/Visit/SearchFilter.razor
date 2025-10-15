@@ -1,0 +1,66 @@
+﻿
+<div class="container-fluid">
+    <div class="row">
+        <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
+            <label for="startdate" class="fw-bold text-start fst-normal mb-1">Start Date:</label>
+            <input type="date" name="startdate" class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.startDate" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
+            <label for="enddate" class="fw-bold text-start fst-normal mb-1">End Date:</label>
+            <input type="date" name="enddate" class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.endDate" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center gap-2 my-2 col-lg-2">
+            <label for="pagesize" class="fw-bold text-start fst-normal mb-1">Page Size:</label>
+            <input type="number" name="pagesize" min="1" max="50"  class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.PageSize" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center gap-2 my-2 col-lg-2">
+            <label for="pagenumber" class="fw-bold text-start fst-normal mb-1">Page Number:</label>
+            <input type="number" name="pagenumber" min="1" class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.pageNumber" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center gap-2 my-2 col-lg-2">
+            <label for="startdate" class="fw-bold text-start fst-normal mb-1">Visit Status:</label>
+            <select name="status" class="form-select" @bind-value="_visitDetailRequestParameter.Status" @bind-value:event="oninput">
+                <option value=""></option>
+                @foreach (var item in Enum.GetValues(typeof(VisitStatus)))
+                {
+                    <option value="@item.ToString()">@item.ToString()</option>
+                }
+            </select>
+        </div>
+        <div class="col-lg-2 d-flex justify-content-center align-items-center">
+            <button class="btn btn-primary" @onclick="OnHandleSpool">
+                Spool
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+
+
+    private VisitDetailRequestParameter _visitDetailRequestParameter;
+
+
+    [Parameter, EditorRequired]
+    public EventCallback<VisitDetailRequestParameter> SpoolRequest { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _visitDetailRequestParameter = new() { pageNumber = 1, PageSize = 10 };
+    }
+
+    public VisitDetailRequestParameter GetParameter()
+    {
+        return _visitDetailRequestParameter;
+    }
+
+    public bool isValid()
+    {
+        return _visitDetailRequestParameter.isValidDate();
+    }
+
+    private async Task OnHandleSpool()
+    {
+        await SpoolRequest.InvokeAsync(_visitDetailRequestParameter);
+    }
+}

@@ -4,7 +4,6 @@ using Shared.DataTransferObjects;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using VisitorManagementSystem.Client.Helpers;
-using VisitorManagementSystem.Presentation.Helpers;
 using System.Text.Json;
 using VisitorManagementSystem.Client.Handler.Authentication;
 
@@ -22,7 +21,7 @@ public class AuthStateProvider : AuthenticationStateProvider
     {
         _localStorageService = localStorageService;
         _refreshTokenHandler = refreshTokenHandler;
-        _httpClient = httpClientFactory.CreateClient(ClientHelper.BaseUri);
+        _httpClient = httpClientFactory.CreateClient(ClientHelper.SecureClientKey);
         _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
     }
 

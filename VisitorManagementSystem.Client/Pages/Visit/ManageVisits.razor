@@ -1,0 +1,141 @@
+﻿@page "/manage-visits"
+@using System.ComponentModel
+@attribute [Authorize(Roles = "Admin, Receptionist")]
+
+@*
+<SearchFilter SpoolRequest="HandleSpool" />
+*@
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
+            <label for="startdate" class="fw-bold text-start fst-normal mb-1">Start Date:</label>
+            <input type="date" name="startdate" class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.startDate" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
+            <label for="enddate" class="fw-bold text-start fst-normal mb-1">End Date:</label>
+            <input type="date" name="enddate" class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.endDate" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center gap-2 my-2 col-lg-2">
+            <label for="pagesize" class="fw-bold text-start fst-normal mb-1">Page Size:</label>
+            <input type="number" name="pagesize" min="1" max="50" class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.PageSize" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center gap-2 my-2 col-lg-2">
+            <label for="pagenumber" class="fw-bold text-start fst-normal mb-1">Page Number:</label>
+            <input type="number" name="pagenumber" min="1" class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.pageNumber" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center gap-2 my-2 col-lg-2">
+            <label for="startdate" class="fw-bold text-start fst-normal mb-1">Visit Status:</label>
+            <select name="status" class="form-select" @bind-value="_visitDetailRequestParameter.Status" @bind-value:event="oninput">
+                <option value=""></option>
+                @foreach (var item in Enum.GetValues(typeof(VisitStatus)))
+                {
+                    <option value="@item.ToString()">@item.ToString()</option>
+                }
+            </select>
+        </div>
+        <div class="col-lg-2 d-flex justify-content-center align-items-center">
+            <button class="btn btn-primary" @onclick="HandleSpool">
+                Spool
+            </button>
+        </div>
+    </div>
+</div>
+
+@if (_isLoading)
+{
+    <div class="d-flex justify-content-center my-4 w-100 h-100">
+        <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+
+@if (_visits.Count() > 0)
+{
+    <div class="d-flex justify-content-center align-items-center py-2">
+        <table class="table table-striped table-hover mt-3">
+            <thead>
+                <tr>
+                    @foreach (var item in typeof(VisitDetailDto).GetMembers().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).Select(x => x.Name))
+                    {
+                        <th scope="col">@item</th>
+                    }
+                    <th scope="col">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var visit in _visits)
+                {
+                    <tr>
+                        @foreach (var member in typeof(VisitDetailDto).GetMembers().Where(x => x.MemberType == System.Reflection.MemberTypes.Property))
+                        {
+
+                            <td @onclick="(() => ManageClick(visit))" class="text-center text-wrap fs-6 fst-italic">@visit.GetType().GetProperty(member.Name)?.GetValue(visit)</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if(_metaData is not null)
+    {
+        <div class="d-flex align-items-center justify-content-center mt-1 gap-3">
+            <button class="btn btn-primary rounded-pill" disabled="@(_metaData.hasPrevious)" role="button" type="button" @onclick="PrevPage">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+
+            <span>Page @_metaData.currentPage of @_metaData.totalPages</span>
+            @*
+            <span>
+            <input class="form-control" type="number" @bind:event="oninput" @bind="CurrentPage" @onkeydown="OnChangePageNum" />
+            </span>
+            *@
+            <button class="btn btn-primary rounded-pill" disabled="@(_metaData.hasNext)" @onclick="NextPage">
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    }
+}
+
+
+@code {
+    private bool _isLoading = false;
+    private bool _isSuccessful;
+    private IEnumerable<VisitDetailDto> _visits = [];
+    private MetaData _metaData;
+    private VisitDetailRequestParameter _visitDetailRequestParameter;
+
+    protected override Task OnInitializedAsync()
+    {
+        _visitDetailRequestParameter = new() { pageNumber = 1, PageSize = 10 };
+        return base.OnInitializedAsync();
+    }
+
+    private void ManageClick(VisitDetailDto selectedVisit)
+    {
+        Console.WriteLine($"Clicked a row.Selected Visit: {selectedVisit.VisitorIdentificationNumber}");
+    }
+
+    private async Task HandleSpool()
+    {
+        _isLoading = true;
+        //await Task.Delay(5000);
+        var response = await getVisitsHandler.Handle(_visitDetailRequestParameter);
+        _visits = response.Item1;_metaData = response.Item2;
+        Console.WriteLine($"Fetched Visits count: {_visits.Count()}");
+        _isSuccessful = _visits.Count() > 0;
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    private void PrevPage()
+    {
+
+    }
+
+    private void NextPage()
+    {
+        
+    }
+}

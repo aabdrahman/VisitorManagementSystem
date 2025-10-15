@@ -2,20 +2,20 @@
 using Shared.DataTransferObjects;
 using System.Net.Http.Json;
 using System.Text.Json;
-using VisitorManagementSystem.Presentation.Helpers;
+using VisitorManagementSystem.Client.Helpers;
 
 namespace VisitorManagementSystem.Client.Handler.Authentication;
 
 public class RefreshTokenHandler
 {
     private readonly ILocalStorageService _localStorageService;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
     private TokenDto? _tokenDto;
 
     public RefreshTokenHandler(ILocalStorageService localStorageService, IHttpClientFactory httpClientFactory)
     {
         _localStorageService = localStorageService;
-        _httpClient = httpClientFactory.CreateClient(ClientHelper.OpenClientKey);
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task Handle()
@@ -29,7 +29,7 @@ public class RefreshTokenHandler
                 return;
             }
 
-            var getRefreshTokenResp = await _httpClient.PostAsJsonAsync("api/authentication/refresh", _tokenDto);
+            var getRefreshTokenResp = await _httpClientFactory.CreateClient(ClientHelper.SecureClientKey).PostAsJsonAsync("api/authentication/refresh", _tokenDto);
 
             getRefreshTokenResp.EnsureSuccessStatusCode();
 

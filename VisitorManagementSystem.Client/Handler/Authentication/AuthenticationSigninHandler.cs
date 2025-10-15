@@ -2,8 +2,8 @@
 using Shared.DataTransferObjects;
 using System.Net.Http.Json;
 using System.Net;
-using VisitorManagementSystem.Presentation.Helpers;
 using System.Text.Json;
+using VisitorManagementSystem.Client.Helpers;
 
 namespace VisitorManagementSystem.Client.Handler.Authentication;
 
