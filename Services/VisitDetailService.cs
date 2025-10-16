@@ -130,7 +130,7 @@ public class VisitDetailService : IVisitDetailService
 
         if (visitDetails == null)
             throw new VisitDetailNotFoundException(checkInDetails.VisitorIdentificationNumber);
-        if(visitDetails.VisitStatus != Entities.StaticValues.VisitStatus.Scheduled && visitDetails.VisitStatus != Entities.StaticValues.VisitStatus.Scheduled)
+        if(visitDetails.VisitStatus != Entities.StaticValues.VisitStatus.Scheduled && visitDetails.VisitStatus != Entities.StaticValues.VisitStatus.Pending)
             throw new InvalidVisitStatusException(visitDetails.VisitStatus.ToString());
         if (!await ValidateCardNumberAvailable(checkInDetails))
             throw new InvalidCardDetailsException(checkInDetails.CardNumber);

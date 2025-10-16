@@ -2,7 +2,7 @@
 
 public record class VisitorDetailsCheckInDto
 {
-    public string VisitorIdentificationNumber { get; init; }
-    public string? ReceptionistName { get; init; }
-    public string? CardNumber { get; init; }
+    public string VisitorIdentificationNumber { get; set; }
+    public string? ReceptionistName { get; set; }
+    public string? CardNumber { get; set; }
 }

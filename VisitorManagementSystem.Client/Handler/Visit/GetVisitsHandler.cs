@@ -36,6 +36,10 @@ public class GetVisitsHandler
 
             return (visits, pagination);
         }
+        catch (TaskCanceledException)
+        {
+            return ([], null);
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);

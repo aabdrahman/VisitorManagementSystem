@@ -1,0 +1,189 @@
+﻿@using System.Text.Json
+@inject NavigationManager navChildManager
+@inject IJSRuntime JSRuntime
+
+<div class="card shadow-lg border-0">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Visit Details</h4>
+        <span class="badge bg-dark fs-6">@Visit.VisitorIdentificationNumber</span>
+    </div>
+    @if (_errorMessage is not null)
+    {
+        <div class="d-flex align-items-center justify-content-center  my-2">
+            <span class="text-danger fst-italic fs-6 fw-bold text-danger" role="alert">@_errorMessage</span>
+        </div>
+    }
+    else if(_isSuccessful)
+    {
+        <div class="d-flex align-items-center justify-content-center  my-2">
+            <span class="text-success fst-italic fs-6 fw-bold" role="alert">@_message</span>
+        </div>
+    }
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Visitor Name:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitorName</dd>
+
+            <dt class="col-sm-4">Phone Number:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitorPhoneNumber</dd>
+
+            <dt class="col-sm-4">Email Address:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitorEmailAddress</dd>
+
+            <dt class="col-sm-4">Gender:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitorGender</dd>
+
+            <dt class="col-sm-4">Host Name:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.HostName</dd>
+
+            <dt class="col-sm-4">Purpose of Visit:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.PurposeOfVisit</dd>
+
+            <dt class="col-sm-4">Visitation Date:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitDate.ToString("D")</dd>
+
+            <dt class="col-sm-4">Visit Status:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitStatus</dd>
+        </dl>
+       @if(!ReadOnly)
+        {
+            if (Visit.VisitStatus == VisitStatus.Pending.ToString() || Visit.VisitStatus == VisitStatus.Scheduled.ToString())
+            {
+                <div class="d-flex flex-row justify-content-start align-items-center" hidden="@(_isSuccessful)">
+                    <div class="flex-row d-flex w-100 flex-row gap-2">
+                        <label for="cardnumber" class="fw-bold text-start w-25 text-nowrap">Card Number: </label>
+                        <input name="cardnumber" type="text" class="form-control w-50" @bind-value="_checkinDetails.CardNumber" @bind-value:event="oninput" />
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    @if(!ReadOnly)
+    {
+        <div class="card-footer d-flex justify-content-end">
+            @if(_isLoading)
+            {
+                <button class="btn btn-primary" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">Loading...</span>
+                </button>
+            }
+            else if(_isSuccessful)
+            {
+                <button class="btn btn-primary px-4" @onclick="Close">
+                    Close
+                </button>
+            }
+            else
+            {
+                if(Visit.VisitStatus == VisitStatus.Pending.ToString() || Visit.VisitStatus == VisitStatus.Scheduled.ToString())
+                {
+                    <button class="btn btn-primary px-4" @onclick="HandleCheckin">
+                        Proceed to Check-in
+                    </button>
+                }
+                if(Visit.VisitStatus == VisitStatus.CheckedIn.ToString())
+                {
+                    <button class="btn btn-primary px-4" @onclick="HandleCheckOut">
+                        Check Out Visit
+                    </button>
+                }
+
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public VisitDetailDto Visit { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    [Parameter]
+    public EventCallback HandleClose { get; set; } = default;
+
+    private VisitorDetailsCheckInDto _checkinDetails;
+    private SuccessfulCheckInDetailsDto _successfulCheckInDetails;
+    private bool _isSuccessful;
+    private string _errorMessage;
+    private string _message;
+    private bool _isLoading = false;
+
+    private void Reset()
+    {
+        _isLoading = default;
+        _message = null;
+        _errorMessage = null;
+        _isLoading = false;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _checkinDetails = new();
+        if (Visit is null)
+            return;
+
+        if (Visit is not null)
+        {
+            var userAuthState = await authStateProvider.GetAuthenticationStateAsync();
+            var user = userAuthState.User;
+
+            if(!ReadOnly)
+            {
+                _checkinDetails = new()
+                {
+                    VisitorIdentificationNumber = Visit.VisitorIdentificationNumber,
+                    ReceptionistName = user.FindFirst(x => x.Type.EndsWith("claims/name"))?.Value ?? ""
+                };
+            }
+
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task HandleCheckOut()
+    {
+        _errorMessage = null; _isLoading = false;
+        // if (string.IsNullOrEmpty(_checkinDetails.CardNumber))
+        // {
+        //     _errorMessage = "Card Number is required.";
+        // }
+
+        _isLoading = true;
+        var response = await checkoutHandler.Handle(_checkinDetails);
+        _isLoading = false; _isSuccessful = response.Item1 is not null;
+        _errorMessage = response.Item1 is null ? response.Item2 : null;
+        _message = response.Item1 is not null ? response.Item2 : null;
+        _checkinDetails = new() { VisitorIdentificationNumber = Visit.VisitorIdentificationNumber };
+
+    }
+
+    private async Task Close()
+    {
+        Reset();
+        await HandleClose.InvokeAsync();
+    }
+
+
+    private async Task HandleCheckin()
+    {
+        _errorMessage = null; _isLoading = false;
+        if(string.IsNullOrEmpty(_checkinDetails.CardNumber))
+        {
+            _errorMessage = "Card Number is required.";
+        }
+        else
+        {
+            _isLoading = true;
+            var response = await checkinHandler.Handle(_checkinDetails);
+            _isLoading = false; _isSuccessful = response.Item1 is not null;
+            _errorMessage = response.Item1 is null ? response.Item2 : null;
+            _message = response.Item1 is not null ? response.Item2 : null;
+            _checkinDetails = new() { VisitorIdentificationNumber = Visit.VisitorIdentificationNumber };
+        }
+
+    }
+}

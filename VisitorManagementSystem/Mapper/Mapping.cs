@@ -32,7 +32,8 @@ public class Mapping : Profile
             .ForMember(dest => dest.VisitorRegistrationType, src => src.MapFrom(x => x.VisitorRegistrationType))
             .ForMember(dest => dest.VisitorGender, src => src.MapFrom(x => x.VisitorGender));
         CreateMap<VisitDetail, VisitDetailDto>()
-            .ForMember(dest => dest.VisitDate, src => src.MapFrom(x => x.VisitationDate));
+            .ForMember(dest => dest.VisitDate, src => src.MapFrom(x => x.VisitationDate))
+            .ForMember(dest => dest.VisitStatus, src => src.MapFrom(x => x.VisitStatus.ToString()));
         CreateMap<RoleForRegistrationDto, Role>();
         CreateMap<Role, RoleDto>();
         CreateMap<UserForCreationDto, User>()

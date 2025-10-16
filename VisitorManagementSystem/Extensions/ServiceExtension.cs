@@ -36,7 +36,7 @@ public static class ServiceExtension
                 builder.WithMethods("GET", "POST", "PUT", "OPTIONS")
                         .WithOrigins("https://localhost:7034", "http://localhost:5285", "https://localhost:7126", "http://localhost:5235")
 				        .AllowAnyHeader()
-                        .WithExposedHeaders("X-Pagination");
+                        .WithExposedHeaders("X-Pagination", "Retry-After");
             });
         });
     }
@@ -171,36 +171,72 @@ public static class ServiceExtension
     {
         services.AddRateLimiter(options =>
         {
+            //options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>
+            //(
+            //    context => RateLimitPartition.GetFixedWindowLimiter("GlobalLimiter", partition => new FixedWindowRateLimiterOptions
+            //    {
+            //        PermitLimit = 5,
+            //        AutoReplenishment = true,
+            //        QueueLimit = 2,
+            //        Window = TimeSpan.FromMinutes(1)
+            //    }
+            //));
+
             options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>
             (
-                context => RateLimitPartition.GetFixedWindowLimiter("GlobalLimiter", partition => new FixedWindowRateLimiterOptions
+                context =>
                 {
-                    PermitLimit = 5,
-                    AutoReplenishment = true,
-                    QueueLimit = 2,
-                    Window = TimeSpan.FromMinutes(1)
+                    var userKey = context.User?.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(userKey, factory => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 10,
+                        AutoReplenishment = true,
+                        QueueLimit = 0,
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        Window = TimeSpan.FromSeconds(10)
+                    });
                 }
-            ));
-
-            options.AddPolicy("SpecialPolicy", policyOptions =>
-
-                RateLimitPartition.GetFixedWindowLimiter("SpecialLimiter", partition => new FixedWindowRateLimiterOptions
-                {
-                     PermitLimit = 10,
-                     AutoReplenishment = true,
-                     QueueLimit = 2,
-                     Window = TimeSpan.FromSeconds(5)
-
-                })
             );
+
+            options.AddPolicy("SpecialPolicy", context =>
+            {
+                var userKey = context.User?.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+
+                return RateLimitPartition.GetFixedWindowLimiter(userKey, factory => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    AutoReplenishment = true,
+                    QueueLimit = 0,
+                    Window = TimeSpan.FromSeconds(5)
+                });
+            });
+
+
+            //options.AddPolicy("SpecialPolicy", policyOptions =>
+
+            //    RateLimitPartition.GetFixedWindowLimiter("SpecialLimiter", partition => new FixedWindowRateLimiterOptions
+            //    {
+            //         PermitLimit = 10,
+            //         AutoReplenishment = true,
+            //         QueueLimit = 2,
+            //         Window = TimeSpan.FromSeconds(5)
+
+            //    })
+            //);
 
             options.OnRejected = async (context, token) =>
             {
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                {
                     await context.HttpContext.Response.WriteAsync($"Too many requests. Retry after: {retryAfter.TotalSeconds} seconds", token);
+                    context.HttpContext.Response.Headers["Retry-After"] = retryAfter.TotalSeconds.ToString();
+                }
                 else
+                {
                     await context.HttpContext.Response.WriteAsync($"Too many requests. Retry again later.", token);
+                }
             };
         });
     }

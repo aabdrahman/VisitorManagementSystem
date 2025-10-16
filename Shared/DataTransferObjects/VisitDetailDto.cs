@@ -10,4 +10,5 @@ public record class VisitDetailDto
     public string VisitorIdentificationNumber { get; init; }
     public string VisitorGender { get; init; }
     public string PurposeOfVisit { get; init; }
+    public string VisitStatus { get; set; }
 }

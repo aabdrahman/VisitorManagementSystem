@@ -72,6 +72,7 @@ public class AuthStateHandler : DelegatingHandler
                         Console.WriteLine($"From Auth State Handler. Token Exists. Calling Endpoint to get status request successful with updated token. Status Code: {result.StatusCode.ToString()}");
                     }
                 }
+
                 catch (HttpRequestException ex)
                 {
 

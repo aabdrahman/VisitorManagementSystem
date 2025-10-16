@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisitorManagementSystem.Sel
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisitorManagementSystem.Presentation", "VisitorManagementSystem.Presentation\VisitorManagementSystem.Presentation.csproj", "{008CE003-5A27-4F42-ABD2-1204CFE1CB78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitorManagementSystem.Client", "VisitorManagementSystem.Client\VisitorManagementSystem.Client.csproj", "{0A4CBC8D-7DBD-418D-B08A-8B62FA3ECA86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisitorManagementSystem.Client", "VisitorManagementSystem.Client\VisitorManagementSystem.Client.csproj", "{0A4CBC8D-7DBD-418D-B08A-8B62FA3ECA86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
