@@ -1,0 +1,104 @@
+﻿@page "/manage-visitors"
+
+
+<PageTitle>Manage Visitors</PageTitle>
+
+<h1 class="display-1 text-start fw-bold"></h1>
+
+@if (_isLoading)
+{
+    <p class="fw-bold fst-italic display-5">Loading.......</p>
+}
+else
+{
+    if(!_isLoading && (Visitors is null || Visitors.Count() == 0))
+    {
+        <div class="no-trails" style="text-align:center;margin-top:100px;">
+            <svg viewBox="0 0 16 16" class="bi bi-tree" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:200px;">
+                <path fill-rule="evenodd" d="M8 0a.5.5 0 0 1 .416.223l3 4.5A.5.50 0 1 11 5.5h-.098l2.022 3.235a.5.5 0 0 1-.424.765h-.191l1.638 3.276a.5.50 0 1-.447.724h-11a.5.5 0 0 1-.447-.724L3.69 9.5H3.5a.5.5 0 01-.424-.765L5.098 5.5H5a.5.5 0 0 1-.416-.777l3-4.5A.5.5 0 0 1 8 0zM5.9344.5H6a.5.5 0 0 1 .424.765L4.402 8.5H4.5a.5.5 0 0 1 .447.724L3.3112.5h9.382l-1.638-3.276A.5.5 0 0 1 11.5 8.5h.098L9.576 5.265A.5.5 0 0 110 4.5h.066L8 1.401 5.934 4.5z" />
+                <path d="M7 13.5h2V16H7v-2.5z" />
+            </svg>
+            <h3 class="text-muted fw-light">
+                @_errorMessage
+            </h3>
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone Number</th>
+                    <th>Email Address</th>
+                    <th>Date Added</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var visitor in Visitors)
+                {
+                    <tr>
+                        <td scope="col">@visitor.VisitorName</td>
+                        <td>@visitor.PhoneNumber</td>
+                        <td>@visitor?.EmailAddress</td>
+                        <td>@visitor?.CreatedDate.ToString("F")</td>
+                        <td>
+                            @if (visitor.IsActive.Contains("active"))
+                            {
+                                <span class="badge text-bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Inactive</span>
+                            }
+                        </td>
+                        <td class="d-flex gap-2 justify-content-evenly">
+                            <button>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                                </svg>
+                            </button>
+                            <button>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-binoculars-fill" viewBox="0 0 16 16">
+                                    <path d="M4.5 1A1.5 1.5 0 0 0 3 2.5V3h4v-.5A1.5 1.5 0 0 0 5.5 1zM7 4v1h2V4h4v.882a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V13H9v-1.5a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5V13H1V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882V4zM1 14v.5A1.5 1.5 0 0 0 2.5 16h3A1.5 1.5 0 0 0 7 14.5V14zm8 0v.5a1.5 1.5 0 0 0 1.5 1.5h3a1.5 1.5 0 0 0 1.5-1.5V14zm4-11H9v-.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5z" />
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+
+@code {
+    private IEnumerable<VisitorDto> Visitors;
+    private bool _isLoading = true;
+    private string _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+        var response = await getVisitorsHandler.Handle();
+
+        if(response is null)
+        {
+            _errorMessage = "No Visitors found.";
+            _isLoading = false;
+        }
+
+        if(response.ResponseCode != "00")
+        {
+            _errorMessage = "No Visitors found.";
+            _isLoading = false;
+        }
+        Console.WriteLine(JsonSerializer.Serialize(response));
+        var responseDataContent = JsonSerializer.Serialize(response.ResponseData);
+        Console.WriteLine(responseDataContent);
+        Visitors = JsonSerializer.Deserialize<IEnumerable<VisitorDto>>(responseDataContent, new JsonSerializerOptions(){ PropertyNameCaseInsensitive = true }) ?? [];
+        _isLoading = false;
+    }
+}
