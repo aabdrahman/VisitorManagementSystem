@@ -1,10 +1,5 @@
 ﻿using Entities.Model;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository;
 
@@ -34,5 +29,8 @@ public class VisitorRepository : RepositoryBase<Visitor>, IVisitorRepository
         return await FindByCondition(v => v.VisitorPhoneNumber == phoneNumber, trackChanges, ignoreQueryFilter).SingleOrDefaultAsync()!;
     }
 
-
+    public void UpdateVisitor(Visitor visitor)
+    {
+        Update(visitor);
+    }
 }

@@ -16,7 +16,9 @@ public class Mapping : Profile
         CreateMap<Visitor, VisitorDto>()
             .ForMember(x => x.PhoneNumber, src => src.MapFrom(y => y.VisitorPhoneNumber))
             .ForMember(x => x.EmailAddress, src => src.MapFrom(y => y.VisitorEmailAddress))
-            .ForMember(x => x.VisitorName, src => src.MapFrom(y => y.VisitorName));
+            .ForMember(x => x.VisitorName, src => src.MapFrom(y => y.VisitorName))
+            .ForMember(x => x.CreatedDate, src => src.MapFrom(y => y.CreatedDate))
+            .ForMember(x => x.IsActive, src => src.MapFrom(y => y.Status));
         CreateMap<CreateVisitDetailDto, VisitDetail>()
             .ForMember(dest => dest.VisitorPhoneNumber, src => src.MapFrom(x => x.VisitorPhoneNumber))
             .ForMember(dest => dest.VisitorEmailAddress, src => src.MapFrom(x => x.VisitorEmailAddress))

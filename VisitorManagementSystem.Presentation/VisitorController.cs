@@ -43,6 +43,15 @@ public class VisitorController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPut("update-visitor")]
+    [Authorize(Policy = "AdminPolicy")]
+    public async Task<IActionResult> UpdateVisitor([FromBody] VisitorDto updatedVisitor)
+    {
+        var respnse = await _serviceManager.VistorService.UpdateVisitor(updatedVisitor);
+
+        return Ok(respnse);
+    }
+
     [HttpGet("{phoneNumber}", Name = "GetByPhoneNumber")]
     [Authorize(Policy = "ReceptionistPolicy")]
     //[OutputCache(PolicyName = "300SecondsPolicy")]

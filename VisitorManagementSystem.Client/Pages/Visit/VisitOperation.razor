@@ -49,7 +49,7 @@
         {
             if (Visit.VisitStatus == VisitStatus.Pending.ToString() || Visit.VisitStatus == VisitStatus.Scheduled.ToString())
             {
-                <div class="d-flex flex-row justify-content-start align-items-center" hidden="@(_isSuccessful)">
+                <div class="d-flex flex-row justify-content-start align-items-center @( _isSuccessful ? "d-none" : "" )">
                     <div class="flex-row d-flex w-100 flex-row gap-2">
                         <label for="cardnumber" class="fw-bold text-start w-25 text-nowrap">Card Number: </label>
                         <input name="cardnumber" type="text" class="form-control w-50" @bind-value="_checkinDetails.CardNumber" @bind-value:event="oninput" />
@@ -184,6 +184,6 @@
             _message = response.Item1 is not null ? response.Item2 : null;
             _checkinDetails = new() { VisitorIdentificationNumber = Visit.VisitorIdentificationNumber };
         }
-
+        StateHasChanged();
     }
 }

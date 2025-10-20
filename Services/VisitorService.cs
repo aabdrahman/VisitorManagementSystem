@@ -1,15 +1,10 @@
 ﻿using AutoMapper;
 using Contracts;
-using Entities.Exceptions;
 using Entities.Model;
 using Entities.Response;
 using Service.Contracts;
 using Shared.DataTransferObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Services;
 
@@ -96,6 +91,38 @@ public class VisitorService : IVistorService
             throw;
         }
         
+    }
+
+    public async Task<Response> UpdateVisitor(VisitorDto updatedVisitor)
+    {
+        try
+        {
+            _loggerManager.LogInfo($"Updating Record for: {JsonSerializer.Serialize(updatedVisitor)}");
+            var existingVisitor = await CheckVisitorExists(updatedVisitor.PhoneNumber, true, false);
+
+            if(existingVisitor is null)
+            {
+                _loggerManager.LogWarning($"No visitor exists with phone number: {updatedVisitor.PhoneNumber}");
+            }
+            _loggerManager.LogInfo($"Updatng existing records........");
+            existingVisitor.VisitorPhoneNumber = updatedVisitor.PhoneNumber;
+            existingVisitor.VisitorName = updatedVisitor.VisitorName;
+            existingVisitor.Status = "active";
+            existingVisitor.VisitorEmailAddress = updatedVisitor?.EmailAddress ?? "";
+
+            _repositoryManager.VisitorRepository.UpdateVisitor(existingVisitor);
+
+            await _repositoryManager.SaveChanges();
+            _loggerManager.LogInfo($"Visitor record updated successfully: {JsonSerializer.Serialize(updatedVisitor)}");
+            var visitorToReturn = _mapper.Map<VisitorDto>(existingVisitor);
+
+            return Response.CreateSuccessResponse(visitorToReturn, "Visitor Updated Successfully.");
+        }
+        catch (Exception ex)
+        {
+            _loggerManager.LogError(ex.Message);
+            return Response.CreateErrorResponse(new Entities.ErrorModels.ErrorDetails() { ErrorDescription = $"{ex.InnerException?.Message}", Message = ex.Message, StatusCode = 200 }, "An Error Occurred", "99");
+        }
     }
 
     private async Task<Visitor?> CheckVisitorExists(string phoneNumber, bool trackChanges, bool ignoreQueryFilter)

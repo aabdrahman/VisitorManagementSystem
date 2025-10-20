@@ -13,5 +13,6 @@ public interface IVisitorRepository
     Task<Visitor> GetVisitorByPhoneNumber(string phoneNumber, bool trackChanges, bool ignoreQueryFilter);
     void Create(Visitor visitor);
     void Delete(Visitor visitor);
-    void AdVisitor(Visitor visitor);    
+    void AdVisitor(Visitor visitor);
+    void UpdateVisitor(Visitor visitor);
 }
