@@ -98,12 +98,22 @@ public class VisitorService : IVistorService
         try
         {
             _loggerManager.LogInfo($"Updating Record for: {JsonSerializer.Serialize(updatedVisitor)}");
-            var existingVisitor = await CheckVisitorExists(updatedVisitor.PhoneNumber, true, false);
+            var existingVisitor = await _repositoryManager.VisitorRepository.GetById(updatedVisitor.Id ?? Guid.NewGuid(), true, true);
 
             if(existingVisitor is null)
             {
-                _loggerManager.LogWarning($"No visitor exists with phone number: {updatedVisitor.PhoneNumber}");
+                _loggerManager.LogWarning($"No visitor exists with phone number: {updatedVisitor.Id}");
+                return Response.CreateErrorResponse(null, $"No record found for Id: {updatedVisitor.Id}", "02");
             }
+
+            //_loggerManager.LogInfo($"Checking for duplicate phone number: {updatedVisitor.PhoneNumber}");
+            //var visitorWithPhoneNumber = await CheckVisitorExists(updatedVisitor.PhoneNumber, false, true);
+            //if (visitorWithPhoneNumber is not null)
+            //{
+            //    _loggerManager.LogError($"Update Record failed. Visitor Exists with phone number: {updatedVisitor.PhoneNumber}");
+            //    return Response.CreateErrorResponse(null, $"Visitor exists already with phone number: {updatedVisitor.PhoneNumber}", "02");
+            //}
+
             _loggerManager.LogInfo($"Updatng existing records........");
             existingVisitor.VisitorPhoneNumber = updatedVisitor.PhoneNumber;
             existingVisitor.VisitorName = updatedVisitor.VisitorName;

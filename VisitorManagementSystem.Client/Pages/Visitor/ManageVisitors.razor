@@ -87,7 +87,11 @@ else
         }
         else if(operationType == OperationType.EditMode)
         {
-            <VisitorOperation Visitor="_selectedVisitor" Close="@(() => popup.Close())" />
+            <VisitorOperation Visitor="_selectedVisitor" Close="@(async () => {
+                popup.Close();
+                await OnInitializedAsync();
+                StateHasChanged();
+                })" />
         }
         else
         {

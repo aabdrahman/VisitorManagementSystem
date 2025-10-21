@@ -1,4 +1,4 @@
-﻿
+﻿@*
 <div class="container-fluid w-100">
     @if(_isSuccessful && _message is not null)
     {
@@ -49,12 +49,69 @@
         else
         {
             <div class="d-flex flex-row justify-content-end gap-3">
-                @*<button class="btn btn-danger" role="button">Delete</button>*@
+                <button class="btn btn-danger" role="button">Delete</button>
                 <button class="btn btn-success" role="button" @onclick="HandleUpdate">Update</button>
             </div>
         }
     </EditForm>
 </div>
+*@
+
+<div class="d-flex justify-content-center align-items-center bg-light">
+    <div class="card shadow-lg p-2" style="max-width: 500px; width: 100%;">
+        <div class="container-fluid w-100">
+            @if (_message is not null)
+            {
+                <div class="alert @( _isSuccessful ? "alert-success" : "alert-danger")" role="alert">
+                    @_message
+                </div>
+            }
+
+            <EditForm Model="Visitor" OnValidSubmit="HandleUpdate">
+                <DataAnnotationsValidator />
+
+                <div class="d-flex flex-column">
+                    <div class="form-group mb-3">
+                        <label for="name" class="form-label fw-bold text-start w-100">Visitor Name</label>
+                        <InputText @bind-Value="Visitor.VisitorName" class="form-control" id="name" />
+                        <ValidationMessage For="(() => Visitor.VisitorName)" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="phoneNumber" class="form-label fw-bold text-start w-100">Visitor Phone Number</label>
+                        <InputText @bind-Value="Visitor.PhoneNumber" class="form-control" id="phoneNumber" />
+                        <ValidationMessage For="(() => Visitor.PhoneNumber)" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="emailAddress" class="form-label fw-bold text-start w-100">Visitor Email Address</label>
+                        <InputText @bind-Value="Visitor.EmailAddress" class="form-control" id="emailAddress" />
+                        <ValidationMessage For="(() => Visitor.EmailAddress)" />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    @if (_isLoading)
+                    {
+                        <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            Loading...
+                        </button>
+                    }
+                    else if (_isSuccessful)
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick="HandleClose">Close</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-success">Update</button>
+                    }
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
 
 @code {
 
@@ -66,6 +123,12 @@
     private bool _isLoading;
     private bool _isSuccessful;
     private string _message;
+
+    protected override Task OnParametersSetAsync()
+    {
+        _isLoading = default;_isSuccessful = default;_message = null;
+        return base.OnParametersSetAsync();
+    }
 
     private async Task HandleUpdate()
     {
