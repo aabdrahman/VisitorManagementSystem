@@ -24,6 +24,7 @@ builder.Services.AddScoped<GetVisitsHandler>();
 builder.Services.AddScoped<CheckinHandler>();
 builder.Services.AddScoped<CheckoutHandler>();
 builder.Services.AddScoped<GetVisitorsHandler>();
+builder.Services.AddScoped<UpdateVisitorHandler>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

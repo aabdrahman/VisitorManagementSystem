@@ -1,5 +1,17 @@
 ﻿
 <div class="container-fluid w-100">
+    @if(_isSuccessful && _message is not null)
+    {
+        <div class="alert alert-success" role="alert">
+            @_message
+        </div>
+    }
+    else if(!_isSuccessful && _message is not null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @_message
+        </div>
+    }
     <EditForm Enhance Model="Visitor">
         <DataAnnotationsValidator />
         <div class="d-flex flex-column">
@@ -19,10 +31,28 @@
                 <ValidationMessage For="(() => Visitor.EmailAddress)" />
             </div>
         </div>
-        <div class="d-flex flex-row justify-content-end gap-3">
-            <button class="btn btn-danger" role="button">Delete</button>
-            <button class="btn btn-success" role="button">Update</button>
-        </div>
+        @if(_isLoading)
+        {
+            <div class="d-flex align-items-center justify-content-end">
+                <button class="btn btn-primary" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">Loading...</span>
+                </button>
+            </div>
+        }
+        else if(!_isLoading && _isSuccessful)
+        {
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary" @onclick="HandleClose">Close</button>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-row justify-content-end gap-3">
+                @*<button class="btn btn-danger" role="button">Delete</button>*@
+                <button class="btn btn-success" role="button" @onclick="HandleUpdate">Update</button>
+            </div>
+        }
     </EditForm>
 </div>
 
@@ -30,4 +60,37 @@
 
     [Parameter, EditorRequired]
     public VisitorDto Visitor { get; set; }
+    [Parameter, EditorRequired]
+    public EventCallback Close { get; set; }
+
+    private bool _isLoading;
+    private bool _isSuccessful;
+    private string _message;
+
+    private async Task HandleUpdate()
+    {
+        _isLoading = true;
+        var response = await updateVisitorHandler.Handle(Visitor);
+
+        if(response is null)
+        {
+            _message = "An Error Occurred Updating Record.";
+            _isSuccessful = false; _isLoading = false;
+        }
+
+        if(response?.ResponseCode != "00")
+        {
+            _message = response.ResponseMessage;
+            _isLoading = false; _isSuccessful = false;
+        }
+
+        _message = response.ResponseMessage;
+        _isLoading = false;_isSuccessful = true;
+    }
+
+    private  async Task HandleClose()
+    {
+        await Close.InvokeAsync();
+    }
+
 }

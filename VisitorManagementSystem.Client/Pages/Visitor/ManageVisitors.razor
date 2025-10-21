@@ -1,5 +1,5 @@
 ﻿@page "/manage-visitors"
-
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Manage Visitors</PageTitle>
 
@@ -79,7 +79,7 @@ else
     }
 }
 
-<Popup @ref="popup" Title="" ShowCloseButton="true">
+<Popup @ref="popup" Title="" ShowCloseButton="false">
     <Body>
         @if(operationType == OperationType.ReadOnly)
         {
@@ -87,7 +87,7 @@ else
         }
         else if(operationType == OperationType.EditMode)
         {
-            <VisitorOperation Visitor="_selectedVisitor" />
+            <VisitorOperation Visitor="_selectedVisitor" Close="@(() => popup.Close())" />
         }
         else
         {
