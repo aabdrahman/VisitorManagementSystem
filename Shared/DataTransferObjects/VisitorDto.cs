@@ -8,14 +8,14 @@ public class VisitorDto
     public Guid? Id { get; set; }
     [Required(ErrorMessage = "Visitor Name is a requird field.")]
     [DisplayName("Name")]
-    public string VisitorName { get; init; }
+    public string VisitorName { get; set; }
     [Required(ErrorMessage = "Phone Number is a required field.")]
     [DisplayName("Phone Number")]
-    public string PhoneNumber { get; init; }
+    public string PhoneNumber { get; set; }
     [DisplayName("Email Address")]
-    public string? EmailAddress { get; init; }
+    public string? EmailAddress { get; set; }
     [DisplayName("Status")]
-    public string IsActive { get; init; }
+    public string IsActive { get; set; }
     [DisplayName("Created Date")]
-    public DateTime CreatedDate { get; init; }
+    public DateTime CreatedDate { get; set; }
 }
