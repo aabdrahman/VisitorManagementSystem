@@ -55,12 +55,12 @@ else
                             }
                         </td>
                         <td class="d-flex gap-2 justify-content-evenly">
-                            <button>
+                            <button class="btn btn-outline-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                                     <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
                                 </svg>
                             </button>
-                            <button>
+                            <button class="btn btn-primary" @onclick="(() => HandleSelected(visitor))">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-binoculars-fill" viewBox="0 0 16 16">
                                     <path d="M4.5 1A1.5 1.5 0 0 0 3 2.5V3h4v-.5A1.5 1.5 0 0 0 5.5 1zM7 4v1h2V4h4v.882a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V13H9v-1.5a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5V13H1V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882V4zM1 14v.5A1.5 1.5 0 0 0 2.5 16h3A1.5 1.5 0 0 0 7 14.5V14zm8 0v.5a1.5 1.5 0 0 0 1.5 1.5h3a1.5 1.5 0 0 0 1.5-1.5V14zm4-11H9v-.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5z" />
                                 </svg>
@@ -73,11 +73,19 @@ else
     }
 }
 
+<Popup @ref="popup" Title="" ShowCloseButton="true">
+    <Body>
+        <VisitorDetails Visitor="_selectedVisitor" />
+    </Body>
+</Popup>
+
 
 @code {
     private IEnumerable<VisitorDto> Visitors;
     private bool _isLoading = true;
     private string _errorMessage;
+    private Popup popup;
+    private VisitorDto _selectedVisitor = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,5 +108,12 @@ else
         Console.WriteLine(responseDataContent);
         Visitors = JsonSerializer.Deserialize<IEnumerable<VisitorDto>>(responseDataContent, new JsonSerializerOptions(){ PropertyNameCaseInsensitive = true }) ?? [];
         _isLoading = false;
+
+    }
+
+    private void HandleSelected(VisitorDto selectedVisitor)
+    {
+        _selectedVisitor = selectedVisitor;
+        popup.Open();
     }
 }

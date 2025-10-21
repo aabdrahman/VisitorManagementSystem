@@ -1,0 +1,26 @@
+﻿
+<div class="container-fluid card">
+    <div class="card border-success mb-3 w-100">
+        <div class="card-header bg-transparent border-success text-center">Visitor Details - @Visitor.VisitorName</div>
+        <div class="card-body text-success">
+            <div class="d-flex flex-row justify-content-between">
+                <label class="card-text fw-bolder">Visitor Name: </label>
+                <p class="card-text fw-bold">@Visitor.VisitorName</p>
+            </div>
+            <div class="d-flex flex-row justify-content-between">
+                <label class="card-text fw-bolder">Visitor Phone Number: </label>
+                <p class="card-text fw-bold">@Visitor.PhoneNumber</p>
+            </div>
+            <div class="d-flex flex-row justify-content-between">
+                <label class="card-text fw-bolder">Visitor Email Address: </label>
+                <p class="card-text fw-bold">@(Visitor?.EmailAddress ?? "")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public VisitorDto Visitor { get; set; }
+}
