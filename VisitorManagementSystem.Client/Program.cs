@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using VisitorManagementSystem.Client;
 using VisitorManagementSystem.Client.AuthenticationProvider;
 using VisitorManagementSystem.Client.Handler.Authentication;
+using VisitorManagementSystem.Client.Handler.UserManagement;
 using VisitorManagementSystem.Client.Handler.Visit;
 using VisitorManagementSystem.Client.Handler.Visitor;
 using VisitorManagementSystem.Client.Helpers;
@@ -25,6 +26,8 @@ builder.Services.AddScoped<CheckinHandler>();
 builder.Services.AddScoped<CheckoutHandler>();
 builder.Services.AddScoped<GetVisitorsHandler>();
 builder.Services.AddScoped<UpdateVisitorHandler>();
+builder.Services.AddScoped<GetRolesHandler>();
+builder.Services.AddScoped<GetUsersHandler>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

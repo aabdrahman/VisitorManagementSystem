@@ -1,0 +1,105 @@
+﻿@page "/manage-users"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>User Management</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center m-3">
+    <span class="text-primary fw-bold display-6">
+        User's List
+    </span>
+    <button class="btn btn-primary rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+        </svg> Add New User
+    </button>
+</div>
+
+@if(_roles is not null && _roles.Count > 0)
+{
+    <UsersSearchFilter Roles="_roles" HandleSpool="OnHandleSpool" />
+}
+
+@if(_isLoading && _users is null)
+{
+    <div class="d-flex justify-content-center align-content-center align-items-center">
+        <div class="spinner-grow text-center" style="width: 12rem; height: 12rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if(!_isLoading && _users?.Count() == 0)
+{
+    <div class="no-trails" style="text-align:center;margin-top:100px;">
+        <svg viewBox="0 0 16 16" class="bi bi-tree" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:200px;">
+            <path fill-rule="evenodd" d="M8 0a.5.5 0 0 1 .416.223l3 4.5A.5.50 0 1 11 5.5h-.098l2.022 3.235a.5.5 0 0 1-.424.765h-.191l1.638 3.276a.5.50 0 1-.447.724h-11a.5.5 0 0 1-.447-.724L3.69 9.5H3.5a.5.5 0 01-.424-.765L5.098 5.5H5a.5.5 0 0 1-.416-.777l3-4.5A.5.5 0 0 1 8 0zM5.9344.5H6a.5.5 0 0 1 .424.765L4.402 8.5H4.5a.5.5 0 0 1 .447.724L3.3112.5h9.382l-1.638-3.276A.5.5 0 0 1 11.5 8.5h.098L9.576 5.265A.5.5 0 0 110 4.5h.066L8 1.401 5.934 4.5z" />
+            <path d="M7 13.5h2V16H7v-2.5z" />
+        </svg>
+        <h3 class="text-muted fw-light">
+            No Registered Users
+        </h3>
+    </div>
+}
+else if(!_isLoading && _users?.Count() > 0)
+{
+    <table class="table table-borderless table-hover">
+        <thead style="background-color:#2b332d">
+            <tr>
+                <th>Staff ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email Address</th>
+                <th>Phone Number</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Date Joined</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var user in _users)
+            {
+                <tr>
+                    <td>@user.StaffID</td>
+                    <td>@user.FirstName</td>
+                    <td>@user.LastName</td>
+                    <td>@user.Email</td>
+                    <td>@user.PhoneNumber</td>
+                    <td>@user.Role</td>
+                    <td>
+                        @if(user.Status)
+                        {
+                            <span class="badge rounded-pill text-bg-success text-center">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge rounded-pill text-bg-danger text-center">Inactive</span>
+                        }
+                    </td>
+                    <td>@user.DateJoined.ToString("D")</td>
+                    <td></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool _isLoading;
+    private List<RoleDto> _roles = [];
+    private IEnumerable<UserSummaryDetails> _users;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var roles = await getRolesHandler.Handle();
+        _roles = roles.ToList();
+    }
+
+    private async Task OnHandleSpool(UsersRequestParameter usersRequestParameter)
+    {
+        _isLoading = true;
+        Console.WriteLine(JsonSerializer.Serialize(usersRequestParameter));
+        _users = await getUsersHandler.Handle(usersRequestParameter);
+        _isLoading = false;
+    }
+}

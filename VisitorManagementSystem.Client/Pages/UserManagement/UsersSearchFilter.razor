@@ -1,0 +1,54 @@
+﻿
+<div class="container-fluid my-2">
+    <div class="row">
+        <div class="col-lg-1"></div>
+        <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
+            <label for="numberofrecords" class="fw-bold text-start fst-normal mb-1">Number Of Records:</label>
+            <input type="number" name="numberofrecords" class="form-control" placeholder="" @bind-value="_usersRequestParameter.NumberOfRecord" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
+            <label for="numberofrecordstoskip" class="fw-bold text-start fst-normal mb-1">Number Of Records To Skip:</label>
+            <input type="number" name="numberofrecordstoskip" class="form-control" placeholder="" @bind-value="_usersRequestParameter.NumberOfRecordsToSkip" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
+            <label for="role" class="fw-bold text-start fst-normal mb-1">Role:</label>
+            <select name="role" id="role" class="form-select" @bind-value="_usersRequestParameter.RoleName" @bind-value:event="oninput">
+                <option value="" selected></option>
+                @foreach(var role in Roles)
+                {
+                    <option value="@role.Name">@role.Name</option>
+                }
+            </select>
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
+            <label for="username" class="fw-bold text-start fst-normal mb-1">Username:</label>
+            <input type="text" name="username" class="form-control" placeholder="" @bind-value="_usersRequestParameter.Username" @bind-value:event="oninput" />
+        </div>
+        <div class="col-lg-2 d-flex justify-content-center align-items-center">
+            <button class="btn btn-primary rounded-pill w-50" @onclick="OnHandleSpool">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
+                </svg>
+                Spool
+            </button>
+        </div>
+        <div class="col-lg-1"></div>
+    </div>
+</div>
+<hr />
+
+@code {
+
+    [Parameter, EditorRequired]
+    public List<RoleDto> Roles { get; set; }
+    [Parameter, EditorRequired]
+    public EventCallback<UsersRequestParameter> HandleSpool { get; set; }
+
+    private UsersRequestParameter _usersRequestParameter = new();
+
+    private async Task OnHandleSpool()
+    {
+        await HandleSpool.InvokeAsync(_usersRequestParameter);
+    }
+}

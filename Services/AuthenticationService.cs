@@ -131,7 +131,7 @@ public class AuthenticationService : IAuthenticationService
         SqlParameter NumberOfRecordsParameter = new SqlParameter("@NumberOfRecords", value:usersRequestParameter.NumberOfRecord);
         SqlParameter NumberOfRecordsToSkipParameter = new SqlParameter("@NumberOfRecordsToSkip", value:usersRequestParameter.NumberOfRecordsToSkip > 0 ? usersRequestParameter.NumberOfRecordsToSkip - 1 : 0);
         SqlParameter RoleNameParameter = new SqlParameter("@RoleName", value: usersRequestParameter.RoleName);
-        SqlParameter UsernameParameter = new SqlParameter("@Username", usersRequestParameter.Username);
+        SqlParameter UsernameParameter = new SqlParameter("@Username", usersRequestParameter?.Username ?? "");
         _loggerManager.LogInfo($"Executing Stored Procedure to fetch users - Procedure: {"[dbo].[GetUserSummaryDetails]"}, Parameters: {JsonSerializer.Serialize(usersRequestParameter)}");
         var usersFromDb = await _repositoryManager.UserSummaryDetails.GetUsers(@"EXECUTE [dbo].[GetUserSummaryDetails] 
                                                            @NumberOfRecords
