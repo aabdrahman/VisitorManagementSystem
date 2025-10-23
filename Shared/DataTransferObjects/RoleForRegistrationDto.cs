@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Shared.DataTransferObjects;
 
-public record class RoleForRegistrationDto
-(
+public class RoleForRegistrationDto
+{
     [Required(ErrorMessage = "Name is a required field.")]
-    string Name,
+    public string Name { get; set; }
     [Required(ErrorMessage = "Normalized Name is a required field.")]
-    string NormalizedName,
+    public string NormalizedName { get; set; }
     [Required(ErrorMessage = "Created By is a required field.")]
-    string CreatedBy
-);
+    public string CreatedBy { get; set; } = string.Empty;
+}

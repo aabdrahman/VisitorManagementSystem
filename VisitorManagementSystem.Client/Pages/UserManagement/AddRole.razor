@@ -1,0 +1,43 @@
+﻿
+<div class="container-fluid w-100">
+    <div class="d-flex flex-column gap-3 align-items-center w-100">
+        <div class="d-flex gap-0 align-items-center justify-content-center w-100 px-3">
+            <label for="rolename" class="form-label fw-bold w-25">Role Name: </label>
+            <input name="rolename" class="form-control w-75" @bind-value="_newRole.Name" @bind-value:event="oninput" />
+        </div>
+        <div class="d-flex justify-content-between align-items-center w-100 gap-3">
+            <button class="btn btn-secondary" @onclick="OnCancel">
+                Cancel
+            </button>
+            <button class="btn btn-primary" @onclick="OnHandleCreate">
+                Create
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RoleForRegistrationDto _newRole;
+
+    [Parameter, EditorRequired]
+    public EventCallback<RoleForRegistrationDto> HandleCreate { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback HandleCancel { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _newRole = new RoleForRegistrationDto();
+        base.OnInitialized();
+    }
+
+    private async Task OnCancel()
+    {
+        await HandleCancel.InvokeAsync();
+    }
+
+    private async Task OnHandleCreate()
+    {
+        await HandleCreate.InvokeAsync(_newRole);
+    }
+}

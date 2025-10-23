@@ -3,15 +3,30 @@
 
 <PageTitle>User Management</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center m-3">
-    <span class="text-primary fw-bold display-6">
-        User's List
-    </span>
-    <button class="btn btn-primary rounded-pill">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-        </svg> Add New User
-    </button>
+<div class="d-flex flex-column gap-3 m-3">
+    <div class="d-flex justify-content-start align-items-center">
+        <span class="text-primary fw-bold display-6">
+            User Authentication Management
+        </span>
+    </div>
+    <div class="d-flex justify-content-between align-items-center gap-5">
+        <button class="btn btn-primary rounded-pill" @onclick="(() => {
+                _operationType = OperationType.ÁddRole;
+                popup.Open();
+            })">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+            </svg> Add New Role
+        </button>
+        <button class="btn btn-primary rounded-pill" @onclick="(() => { 
+                        _operationType = OperationType.RegisterUser;
+                        popup.Open();
+                })">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+            </svg> Add New User
+        </button>
+    </div>
 </div>
 
 @if(_roles is not null && _roles.Count > 0)
@@ -83,11 +98,32 @@ else if(!_isLoading && _users?.Count() > 0)
     </table>
 }
 
+<Popup Title="@_title" @ref="popup" ShowCloseButton="false">
+    <Body>
+        @if(_operationType == OperationType.RegisterUser)
+        {
+            _title = "Add New User";
+            <RegisterUser HandleClose="(() => popup.Close())" />
+        }
+        else if(_operationType == OperationType.ÁddRole)
+        {
+            _title = "Add New Role";
+            <AddRole HandleCreate="OnAddRole" HandleCancel="(() => popup.Close())"  />
+        }
+        else
+        {
+            <p></p>
+        }
+    </Body>
+</Popup>
+
 @code {
     private bool _isLoading;
     private List<RoleDto> _roles = [];
     private IEnumerable<UserSummaryDetails> _users;
-
+    private OperationType _operationType;
+    private string _title;
+    private Popup popup;
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,5 +137,18 @@ else if(!_isLoading && _users?.Count() > 0)
         Console.WriteLine(JsonSerializer.Serialize(usersRequestParameter));
         _users = await getUsersHandler.Handle(usersRequestParameter);
         _isLoading = false;
+    }
+
+    private async Task OnAddRole(RoleForRegistrationDto roleForRegistration)
+    {
+        await Task.Delay(5000);
+    }
+}
+
+@code {
+    enum OperationType
+    {
+        RegisterUser,
+        ÁddRole
     }
 }

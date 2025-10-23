@@ -1,0 +1,94 @@
+﻿
+<div class="container-fluid w-100 p-2">
+    <EditForm Enhance EditContext="_editContext" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <div class="d-flex flex-column w-100 gap-2">
+            <div class="d-flex flex-row gap-2 justify-content-between align-items-center">
+                <div class="d-flex flex-column gap-1 w-50">
+                    <label for="firstname" class="form-label fw-bold">First Name: </label>
+                    <InputText @bind-Value="_userForCreation.FirstName" class="form-control" />
+                    <ValidationMessage For="(() => _userForCreation.FirstName)" />
+                    @*<input type="text" class="form-control" name="firstname" @bind-value="_userForCreation.FirstName" @bind-value:event="oninput" />*@
+                </div>
+                <div class="d-flex flex-column gap-1 w-50">
+                    <label for="lastname" class="form-label fw-bold">Last Name: </label>
+                    <InputText @bind-Value="_userForCreation.LastName" class="form-control" />
+                    <ValidationMessage For="(() => _userForCreation.LastName)" />
+                    @*<input type="text" class="form-control" name="lastname" @bind-value="_userForCreation.LastName" @bind-value:event="oninput" />*@
+                </div>
+            </div>
+            <div class="d-flex flex-column gap-1">
+                <label for="staffid" class="form-label fw-bold">Staff ID: </label>
+                <InputText @bind-Value="_userForCreation.StaffId" class="form-control" />
+                <ValidationMessage For="(() => _userForCreation.StaffId)" />
+                @*<input type="text" class="form-control" name="staffid" @bind-value="_userForCreation.StaffId" @bind-value:event="oninput" />*@
+            </div>
+            <div class="d-flex flex-column gap-1">
+                <label for="phonenumber" class="form-label fw-bold">Phone Number: </label>
+                <InputText type="tel" @bind-Value="_userForCreation.PhoneNumber" class="form-control" />
+                <ValidationMessage For="(() => _userForCreation.PhoneNumber)" />
+                @*<input type="tel" class="form-control" name="phonenumber" @bind-value="_userForCreation.PhoneNumber" @bind-value:event="oninput" />*@
+            </div>
+            <div class="d-flex flex-column gap-1">
+                <label for="emailaddress" class="form-label fw-bold">Email Address: </label>
+                <InputText id="emailaddress" @bind-Value="_userForCreation.Email" class="form-control" />
+                <ValidationMessage For="(() => _userForCreation.Email)" />
+                @*<input type="email" class="form-control" name="emailaddress" @bind-value="_userForCreation.Email" @bind-value:event="oninput" />*@
+            </div>
+            @*
+            <div class="d-flex flex-column gap-1">
+                <label for="emailaddress" class="form-label fw-bold">Email Address: </label>
+                <InputText id="emailaddress" @bind-Value="_userForCreation.Email" class="form-control" />
+                <ValidationMessage For="(() => _userForCreation.Email)" />
+                <input type="email" class="form-control" name="emailaddress" @bind-value="_userForCreation.Email" @bind-value:event="oninput" />
+            </div>
+            *@
+            <div class="d-flex flex-row gap-2 justify-content-between align-items-center">
+                <div class="d-flex flex-column w-50 gap-1">
+                    <label for="password" class="form-label fw-bold">Password: </label>
+                    <InputText type="password" id="password" @bind-Value="_userForCreation.Password" class="form-control" />
+                    <ValidationMessage For="(() => _userForCreation.Password)" />
+                    @*<input type="password" class="form-control" name="password" @bind-value="_userForCreation.Password" @bind-value:event="oninput" />*@
+                </div>
+                <div class="d-flex flex-column w-50 gap-1">
+                    <label for="confirmpassword" class="form-label fw-bold">Confirm Password: </label>
+                    <InputText type="password" id="confirmpassword" @bind-Value="_userForCreation.ConfirmPassword" class="form-control" />
+                    <ValidationMessage For="(() => _userForCreation.ConfirmPassword)" />
+                    @*<input type="password" class="form-control" name="confirmpassword" @bind-value="_userForCreation.ConfirmPassword" @bind-value:event="oninput" />*@
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center gap-3 mt-2">
+                <button class="btn btn-secondary rounded-3" type="button" @onclick="OnHandleClose">
+                    Cancel
+                </button>
+                <button class="btn btn-primary rounded-3" type="submit">
+                    Save
+                </button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private UserForCreationDto _userForCreation;
+    private EditContext _editContext;
+
+    [Parameter, EditorRequired]
+    public EventCallback HandleClose { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _userForCreation = new();
+        _editContext = new EditContext(_userForCreation);
+    }
+
+    private async Task HandleSubmit()
+    {
+
+    }
+
+    private async Task OnHandleClose()
+    {
+        await HandleClose.InvokeAsync();
+    }
+}
