@@ -12,8 +12,8 @@ using Repository;
 namespace VisitorManagementSystem.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20251021222527_AddStoredProcedures")]
-    partial class AddStoredProcedures
+    [Migration("20251023100658_AddGetUserDetails_Proc")]
+    partial class AddGetUserDetails_Proc
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

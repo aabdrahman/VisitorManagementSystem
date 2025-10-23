@@ -1,10 +1,5 @@
 ﻿using Contracts;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository;
 
@@ -24,6 +19,11 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     public void Delete(T entity)
     {
         _context.Set<T>().Remove(entity);
+    }
+
+    public async Task<IQueryable<T>> ExecuteProcedure(string query, params object[] parameters)
+    {
+        return await Task.FromResult(_context.Database.SqlQueryRaw<T>(query, parameters));
     }
 
     public IQueryable<T> FindAll(bool trackChanges, bool ignoreQueryFilter)

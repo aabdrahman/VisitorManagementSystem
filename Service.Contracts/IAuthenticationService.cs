@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Entities.Model.Helpers;
+using Microsoft.AspNetCore.Identity;
 using Shared.DataTransferObjects;
+using Shared.RequestFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +20,5 @@ public interface IAuthenticationService
     Task<string> GetLoginUser(string token);
     Task<TokenDto> GenerateRefreshToken(TokenDto tokenDto);
     Task<string> ResetPassword(ChangePasswordDto resetPasswordDetails);
-
+    Task<IEnumerable<UserSummaryDetails>> GetAllUsers(UsersRequestParameter usersRequestParameter);
 }

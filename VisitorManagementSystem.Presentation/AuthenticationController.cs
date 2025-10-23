@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using Shared.RequestFeatures;
 using VisitorManagementSystem.Presentation.ActionFilters;
 
 namespace VisitorManagementSystem.Presentation;
@@ -74,6 +75,14 @@ public class AuthenticationController : ControllerBase
         var result = await _serviceManager.AuthenticationService.GetRoles();
 
         return Ok(result);
+    }
+
+    [HttpGet("fetch-users")]
+    public async Task<IActionResult> GetUsers([FromQuery] UsersRequestParameter requestParameter)
+    {
+        var users = await _serviceManager.AuthenticationService.GetAllUsers(requestParameter);
+
+        return Ok(users);
     }
 
     [HttpPost("RegisterUser")]

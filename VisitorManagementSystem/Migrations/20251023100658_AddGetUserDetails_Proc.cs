@@ -5,13 +5,14 @@
 namespace VisitorManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class AddStoredProcedures : Migration
+    public partial class AddGetUserDetails_Proc : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
-                  CREATE OR ALTER PROCEDURE [dbo].[GetUserSummaryDetails]
+            
+                CREATE OR ALTER PROCEDURE [dbo].[GetUserSummaryDetails]
 	                    @NumberOfRecords INT,
 	                    @NumberOfRecordsToSkip INT,
 	                    @RoleName NVARCHAR(50),
@@ -20,12 +21,19 @@ namespace VisitorManagementSystem.Migrations
 
                 BEGIN
 	                SET NOCOUNT ON;
-		                SELECT [u].[StaffId], [u].[FirstName], [u].[LastName], [u].[Email], [u].[PhoneNumber], [u].[isActive], [r].[Name], [u].[CreatedAt]
+		                SELECT  [u].[StaffId] AS [StaffId],
+                                [u].[FirstName] AS [FirstName], 
+                                [u].[LastName] AS [LastName], 
+                                [u].[Email] AS [Email], 
+                                [u].[PhoneNumber] AS [PhoneNumber], 
+                                [u].[isActive] AS [Status], 
+                                [r].[Name] AS [Role], 
+                                [u].[CreatedAt] AS [DateJoined]
 		                FROM dbo.AspNetUsers u
 		                JOIN dbo.AspNetUserRoles ur 
-		                ON u.Id = ur.UserId
+		                ON [u].[Id] = [ur].[UserId]
 		                INNER JOIN dbo.AspNetRoles r
-		                ON r.Id = ur.RoleId
+		                ON [r].[Id] = [ur].[RoleId]
                         WHERE 
                         (
                             (@RoleName = '' OR r.Name LIKE '%' + @RoleName + '%')
