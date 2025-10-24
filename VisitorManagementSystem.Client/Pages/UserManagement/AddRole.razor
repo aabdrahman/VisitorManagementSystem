@@ -18,6 +18,7 @@
 
 @code {
     private RoleForRegistrationDto _newRole;
+    private string _loggedInUser;
 
     [Parameter, EditorRequired]
     public EventCallback<RoleForRegistrationDto> HandleCreate { get; set; }
@@ -25,10 +26,15 @@
     [Parameter, EditorRequired]
     public EventCallback HandleCancel { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _newRole = new RoleForRegistrationDto();
-        base.OnInitialized();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var user = (await authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _loggedInUser = user?.FindFirst(x => x.Type.EndsWith("claims/name"))?.Value ?? "";
     }
 
     private async Task OnCancel()
@@ -38,6 +44,7 @@
 
     private async Task OnHandleCreate()
     {
+        Console.WriteLine(JsonSerializer.Serialize(_newRole));
         await HandleCreate.InvokeAsync(_newRole);
     }
 }

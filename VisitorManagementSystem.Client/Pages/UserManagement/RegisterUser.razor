@@ -72,6 +72,7 @@
 @code {
     private UserForCreationDto _userForCreation;
     private EditContext _editContext;
+    private string _loggedInUser;
 
     [Parameter, EditorRequired]
     public EventCallback HandleClose { get; set; }
@@ -80,6 +81,12 @@
     {
         _userForCreation = new();
         _editContext = new EditContext(_userForCreation);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var user = (await authenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _loggedInUser = user?.FindFirst(x => x.Type.EndsWith("claims/name"))?.Value ?? "";
     }
 
     private async Task HandleSubmit()
