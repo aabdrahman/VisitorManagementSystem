@@ -1,0 +1,37 @@
+﻿using Entities.Response;
+using Shared.DataTransferObjects;
+using System.Net.Http.Json;
+using VisitorManagementSystem.Client.Helpers;
+
+namespace VisitorManagementSystem.Client.Handler.UserManagement;
+
+public class AddRoleHandler
+{
+    private HttpClient _httpClient;
+
+    public AddRoleHandler(IHttpClientFactory httpClientFactory)
+    {
+        _httpClient = httpClientFactory.CreateClient(ClientHelper.SecureClientKey);
+    }
+
+    public async Task<(bool, string)> Handle(RoleForRegistrationDto newRole)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/authentication/createRole", newRole);
+            //response.EnsureSuccessStatusCode();
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseContent);
+            return response.IsSuccessStatusCode ? (true, "Role Created Successfully.") : (false, responseContent);
+        }
+        catch(HttpRequestException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return (false, $"An Error Occurred: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return (false, "An Error Occurred.");
+        }
+    }
+}

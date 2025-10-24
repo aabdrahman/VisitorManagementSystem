@@ -8,6 +8,5 @@ public class RoleForRegistrationDto
     public string Name { get; set; }
     [Required(ErrorMessage = "Normalized Name is a required field.")]
     public string NormalizedName { get; set; }
-    [Required(ErrorMessage = "Created By is a required field.")]
-    public string CreatedBy { get; set; } = string.Empty;
+    public string? CreatedBy { get; set; } = string.Empty;
 }

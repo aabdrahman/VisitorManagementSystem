@@ -103,12 +103,19 @@ else if(!_isLoading && _users?.Count() > 0)
         @if(_operationType == OperationType.RegisterUser)
         {
             _title = "Add New User";
-            <RegisterUser HandleClose="(() => popup.Close())" />
+            <RegisterUser HandleClose="(() => 
+            {
+                popup.Close();
+                _operationType = default;
+            })" />
         }
         else if(_operationType == OperationType.ÁddRole)
         {
             _title = "Add New Role";
-            <AddRole HandleCreate="OnAddRole" HandleCancel="(() => popup.Close())"  />
+            <AddRole HandleCreate="OnAddRole" HandleCancel="(() => {
+                popup.Close();
+                _operationType = default;
+            })"  />
         }
         else
         {

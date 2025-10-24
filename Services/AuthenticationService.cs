@@ -56,7 +56,8 @@ public class AuthenticationService : IAuthenticationService
         if(!result.Succeeded)
         {
             _loggerManager.LogError($"An Error Occurred creating role in the: {nameof(CreateRole)} method. ");
-            throw new RoleCreateFailureException("An Error Occurred creating Role.");
+            return result;
+            //throw new RoleCreateFailureException("An Error Occurred creating Role.");
         }
         _loggerManager.LogInfo($"Role Creation Successful: {roleToInsert}");
         return result;

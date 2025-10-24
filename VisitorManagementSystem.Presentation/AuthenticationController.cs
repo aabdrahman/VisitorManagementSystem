@@ -30,7 +30,7 @@ public class AuthenticationController : ControllerBase
 
     [HttpPost("createRole")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
-    [Authorize(Roles = "ReceptionistPolicy")]
+    [Authorize(Policy = "AdminPolicy")]
     public async Task<IActionResult> CreateRole([FromBody] RoleForRegistrationDto roleForRegistration)
     {
         //if(!ModelState.IsValid)
@@ -57,12 +57,13 @@ public class AuthenticationController : ControllerBase
 
         if(!result.Succeeded)
         {
-            foreach(var error in result.Errors)
-            {
-                ModelState.TryAddModelError(error.Code, error.Description);
-            }
+            var errorResult = string.Join(", ", result.Errors.Select(x => x.Description));
+            //foreach(var error in result.Errors)
+            //{
+            //    ModelState.TryAddModelError(error.Code, error.Description);
+            //}
 
-            return BadRequest(ModelState);
+            return BadRequest(errorResult);
         }
 
         return Created();

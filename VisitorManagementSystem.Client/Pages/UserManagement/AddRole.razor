@@ -1,24 +1,63 @@
 ﻿
 <div class="container-fluid w-100">
-    <div class="d-flex flex-column gap-3 align-items-center w-100">
-        <div class="d-flex gap-0 align-items-center justify-content-center w-100 px-3">
-            <label for="rolename" class="form-label fw-bold w-25">Role Name: </label>
-            <input name="rolename" class="form-control w-75" @bind-value="_newRole.Name" @bind-value:event="oninput" />
+    @if(_message is not null)
+    {
+        <div class="text-center alert alert-@(_isSuccessful ? "success" : "danger")" role="alert">
+           @_message
         </div>
-        <div class="d-flex justify-content-between align-items-center w-100 gap-3">
-            <button class="btn btn-secondary" @onclick="OnCancel">
-                Cancel
-            </button>
-            <button class="btn btn-primary" @onclick="OnHandleCreate">
-                Create
-            </button>
-        </div>
+    }
+    <div class="d-flex p-2 w-100 justify-content-center align-items-center">
+        <EditForm class="w-100" Model="_newRole" OnValidSubmit="OnHandleCreate">
+            <DataAnnotationsValidator />
+            <div class="d-flex flex-column gap-3 align-items-center w-100">
+                <div class="d-flex flex-column gap-1 align-items-center justify-content-center w-100 px-3">
+                    <div class="d-flex flex-row w-100 gap-1">
+                        <label for="rolename" class="form-label fw-bold w-25">Role Name: </label>
+                        <InputText @bind-Value="_newRole.Name" class="form-control w-75" name="rolename" @oninput="OnRoleNameChanged" />
+                    </div>
+                    <ValidationMessage For="(() => _newRole.Name)" />
+                    @*<input name="rolename" class="form-control w-75" @bind-value="_newRole.Name" @bind-value:event="oninput" />*@
+                </div>
+                <div class="d-flex flex-column gap-1 align-items-center justify-content-center w-100 px-3" style="display:none!important;">
+                    <div class="d-flex flex-row w-100 gap-1">
+                        <label for="normaliedrolename" class="form-label fw-bold w-25">Normalized Role Name: </label>
+                        <InputText @bind-Value="_newRole.NormalizedName" disabled class="form-control w-75" name="normaliedrolename" />
+                    </div>
+                    <ValidationMessage For="(() => _newRole.NormalizedName)" />
+                    @*<input name="rolename" class="form-control w-75" @bind-value="_newRole.Name" @bind-value:event="oninput" />*@
+                </div>
+                <div class="d-flex justify-content-between align-items-center w-100 gap-3">
+                    <button class="btn btn-secondary" @onclick="OnCancel">
+                        Cancel
+                    </button>
+                    @if (_isLoading)
+                    {
+                        <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                            <span role="status">Loading...</span>
+                        </button>
+                    }
+                    else
+                    {
+                        if (!_isSuccessful)
+                        {
+                            <button class="btn btn-primary" type="submit">
+                                Create
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </EditForm>
     </div>
-</div>
+ </div>
 
 @code {
     private RoleForRegistrationDto _newRole;
     private string _loggedInUser;
+    private bool _isLoading;
+    private bool _isSuccessful;
+    private string _message;
 
     [Parameter, EditorRequired]
     public EventCallback<RoleForRegistrationDto> HandleCreate { get; set; }
@@ -29,6 +68,7 @@
     protected override async Task OnInitializedAsync()
     {
         _newRole = new RoleForRegistrationDto();
+        _newRole.NormalizedName = _newRole?.Name?.ToUpper();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -39,12 +79,28 @@
 
     private async Task OnCancel()
     {
+        _newRole = new();
         await HandleCancel.InvokeAsync();
     }
 
     private async Task OnHandleCreate()
     {
-        Console.WriteLine(JsonSerializer.Serialize(_newRole));
+        _isLoading = true;
+        _newRole.CreatedBy = _loggedInUser;
+        _newRole.NormalizedName = _newRole?.Name?.ToUpper() ?? "";
         await HandleCreate.InvokeAsync(_newRole);
+
+        var response = await addRoleHandler.Handle(_newRole);
+        _isSuccessful = response.Item1; _message = response.Item2;
+        Console.WriteLine($"Returns - {JsonSerializer.Serialize(response)}");
+        _isLoading = false;
+        _newRole = new();
+        StateHasChanged();
+    }
+    private void OnRoleNameChanged(ChangeEventArgs e)
+    {
+        _newRole.Name = e.Value?.ToString() ?? string.Empty;
+        _newRole.NormalizedName = _newRole.Name.ToUpper();
+        Console.WriteLine(_newRole.NormalizedName);
     }
 }
