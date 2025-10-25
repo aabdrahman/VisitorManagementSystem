@@ -120,7 +120,7 @@
     }
 }
 
-<Popup @ref="popup" Title="@Title">
+<Popup @ref="popup" ShowCloseButton="_showCloseButton" Title="@Title">
     <Body>
         <VisitOperation Visit="_selectedVisit" ReadOnly="OperationType" HandleClose="@(() => 
         {
@@ -141,6 +141,7 @@
     private VisitDetailDto _selectedVisit = new();
     private Popup popup;
     private bool OperationType = false;
+    private bool _showCloseButton = false;
     private string Title = "Visitor Check In";
 
     protected override Task OnInitializedAsync()
@@ -152,7 +153,7 @@
     private void ManageClick(VisitDetailDto selectedVisit)
     {
         OperationType = true; Title = "Visit Details";
-        _selectedVisit = selectedVisit;
+        _selectedVisit = selectedVisit; _showCloseButton = true;
         popup.Open();
     }
 
@@ -170,12 +171,14 @@
     {
         Title = "Visitor Check In";OperationType = false;
         _selectedVisit = visitToCheckin;
+        _showCloseButton = false;
         popup.Open();
     }
 
     private void ManageCheckOutClick(VisitDetailDto visitToCheckout)
     {
         Title = "Visitor Check Out"; OperationType = false;
+        _showCloseButton = false;
         _selectedVisit = visitToCheckout;
         popup.Open();
     }
