@@ -7,7 +7,11 @@
 
 @if (_isLoading)
 {
-    <p class="fw-bold fst-italic display-5">Loading.......</p>
+    <div class="d-flex w-100 h-100 justify-content-center align-items-center">
+        <div class="spinner-grow" style="width: 15rem; height: 15rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 }
 else
 {

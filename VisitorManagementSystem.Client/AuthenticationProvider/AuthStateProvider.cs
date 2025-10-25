@@ -88,4 +88,12 @@ public class AuthStateProvider : AuthenticationStateProvider
 
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claimsPrincipals, authenticationType: "jwtAuthType", nameType: "Username", roleType: ClaimTypes.Role)));
     }
+
+    public async Task NotifyUserLogout()
+    {
+        var authState = Task.FromResult(_anonymous);
+        await _localStorageService.RemoveItemAsync(ClientHelper.StorageKey);
+        NotifyAuthenticationStateChanged(authState);
+
+    }
 }
