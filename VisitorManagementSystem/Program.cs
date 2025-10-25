@@ -25,6 +25,7 @@ builder.Services.ConfigureJwtAuthorization();
 builder.Services.ConfigureResponseCaching();
 builder.Services.ConfigureRateLimiting();
 builder.Services.ConfigureEnumSerializer();
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 

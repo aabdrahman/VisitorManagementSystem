@@ -39,7 +39,8 @@ public class Mapping : Profile
         CreateMap<RoleForRegistrationDto, Role>();
         CreateMap<Role, RoleDto>();
         CreateMap<UserForCreationDto, User>()
-            .ForMember(o => o.UserName, src => src.MapFrom(x => string.Concat(x.FirstName, ".", x.LastName)));
+            .ForMember(o => o.UserName, src => src.MapFrom(x => string.Concat(x.FirstName, ".", x.LastName)))
+            .ForMember(x => x.CreatedBy, src => src.MapFrom(x => x.CreatedBy ?? "" ));
         CreateMap<VisitDetail, SuccessfulCheckInDetailsDto>()
             .ForMember(dest => dest.CardNumber, src => src.MapFrom(x => x.AssignedCardNumber))
             .ForMember(dest => dest.VisitorIdentificationNumber, src => src.MapFrom(x => x.VisitorIdentificationNumber))

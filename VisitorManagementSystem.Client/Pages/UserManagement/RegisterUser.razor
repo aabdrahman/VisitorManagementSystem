@@ -1,5 +1,11 @@
 ﻿
 <div class="container-fluid w-100 p-2">
+    @if(_message is not null)
+    {
+        <div class="text-center fw-bold alert alert-@(_isSuccessful ? "success" : "danger")" role="alert">
+            @_message
+        </div>
+    }
     <EditForm Enhance EditContext="_editContext" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator />
         <div class="d-flex flex-column w-100 gap-2">
@@ -37,6 +43,33 @@
             </div>
             @*
             <div class="d-flex flex-column gap-1">
+                <label for="usserrole" class="form-label fw-bold">Role: </label>
+                <InputSelect class="form-select" @bind-Value="_userForCreation.UserRoles">
+                    <option selected value=""></option>
+                    @foreach(var role in Roles)
+                    {
+                        <option value="@role.Name">@role.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            *@
+            <div class="d-flex flex-column gap-1">
+                <label for="usserrole" class="form-label fw-bold">Role: </label>
+                <select class="form-select" name="userrole" @onchange="HandleSelectChange">
+                    <option value="" selected></option>
+                    @foreach(var role in Roles)
+                    {
+                        <option value="@role.Name">@role.Name</option>
+                    }
+                </select>
+                @if (_isSelectedInValid)
+                {
+                    <div class="validation-message">Please select at least one role.</div>
+                }
+            </div>
+           
+            @*
+            <div class="d-flex flex-column gap-1">
                 <label for="emailaddress" class="form-label fw-bold">Email Address: </label>
                 <InputText id="emailaddress" @bind-Value="_userForCreation.Email" class="form-control" />
                 <ValidationMessage For="(() => _userForCreation.Email)" />
@@ -61,9 +94,23 @@
                 <button class="btn btn-secondary rounded-3" type="button" @onclick="OnHandleClose">
                     Cancel
                 </button>
-                <button class="btn btn-primary rounded-3" type="submit">
-                    Save
-                </button>
+                @if(_isLoading)
+                {
+                    <button class="btn btn-primary" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                        <span role="status">Loading...</span>
+                    </button>
+                }
+                else
+                {
+                    if(!_isSuccessful)
+                    {
+                        <button class="btn btn-primary rounded-3" type="submit">
+                            Save
+                        </button>
+                    }
+                }
+
             </div>
         </div>
     </EditForm>
@@ -73,13 +120,22 @@
     private UserForCreationDto _userForCreation;
     private EditContext _editContext;
     private string _loggedInUser;
+    private bool _isSelectedInValid;
+    private bool _isLoading;
+    private bool _isSuccessful;
+    private string _message;
+
 
     [Parameter, EditorRequired]
     public EventCallback HandleClose { get; set; }
 
+    [Parameter, EditorRequired]
+    public IEnumerable<RoleDto> Roles { get; set; } = [];
+
     protected override void OnInitialized()
     {
         _userForCreation = new();
+        _userForCreation.UserRoles = [];
         _editContext = new EditContext(_userForCreation);
     }
 
@@ -92,10 +148,52 @@
     private async Task HandleSubmit()
     {
 
+        _isSelectedInValid = !_userForCreation.UserRoles.Any();
+        if (_isSelectedInValid)
+        {
+            return;
+        }
+        _userForCreation.CreatedBy = _loggedInUser;
+        _isLoading = true;
+        var response = await registerUserHandler.Handle(_userForCreation);
+        _isLoading = false; _isSuccessful = response.Item1;
+        _message = response.Item2;
+        if(_isSuccessful)
+        {
+            ResetForm();
+        }
     }
 
     private async Task OnHandleClose()
     {
+        ResetForm();
         await HandleClose.InvokeAsync();
+    }
+
+    private void HandleSelectChange(ChangeEventArgs e)
+    {
+        var selectedValues = new List<string>();
+
+        if (e?.Value is string value)
+        {
+            selectedValues.Add(value);
+        }
+        else if (e?.Value is string[] values)
+        {
+            selectedValues.AddRange(values);
+        }
+
+        _userForCreation.UserRoles = selectedValues;
+        _isSelectedInValid = false;
+    }
+
+    private void ResetForm()
+    {
+        _userForCreation = new();
+        _userForCreation.UserRoles = [];
+        _editContext = new EditContext(_userForCreation);
+        _isSelectedInValid = default;
+        _isSuccessful = default;
+        _message = null;
     }
 }

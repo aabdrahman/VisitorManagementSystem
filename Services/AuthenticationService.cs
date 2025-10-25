@@ -17,6 +17,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace Services;
 
@@ -28,14 +29,16 @@ public class AuthenticationService : IAuthenticationService
     private readonly RoleManager<Role> _roleManager;
     private readonly IMapper _mapper;
     private readonly IConfiguration _configuration;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private User? loginUser;
 
-    public AuthenticationService(IMapper mapper, 
-                                ILoggerManager loggerManager, 
-                                IRepositoryManager repositoryManager, 
-                                UserManager<User> userManager, 
-                                RoleManager<Role> roleManager, 
-                                IConfiguration configuration)
+    public AuthenticationService(IMapper mapper,
+                                ILoggerManager loggerManager,
+                                IRepositoryManager repositoryManager,
+                                UserManager<User> userManager,
+                                RoleManager<Role> roleManager,
+                                IConfiguration configuration,
+                                IHttpContextAccessor httpContextAccessor)
     {
         _repositoryManager = repositoryManager;
         _loggerManager = loggerManager;
@@ -43,6 +46,7 @@ public class AuthenticationService : IAuthenticationService
         _roleManager = roleManager;
         _mapper = mapper;
         _configuration = configuration;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<IdentityResult> CreateRole(RoleForRegistrationDto roleForRegistration, string token)
@@ -65,18 +69,27 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<IdentityResult> CreateUser(UserForCreationDto userForCreation)
     {
+        _loggerManager.LogInfo($"Creating User - {JsonSerializer.Serialize(userForCreation)}");
         var existsRoles = await CheckRolesExist(userForCreation);
 
         if (!existsRoles.isValidRoles)
+        {
+            _loggerManager.LogWarning($"Invalid Role Provided - {string.Join(", ", existsRoles.notExistingRoles)} for user to create - {JsonSerializer.Serialize(userForCreation)}");
             return IdentityResult.Failed(new IdentityError { Description = $"Provided roles: {string.Concat(existsRoles.notExistingRoles)} does not exist", Code = "99" });
+        }
         
         var userToInsert = _mapper.Map<User>(userForCreation);
-
+        userToInsert.CreatedBy = _httpContextAccessor.HttpContext.User.FindFirst(x => x.Type.EndsWith("claims/name"))?.Value ?? "anaonymous";
+        _loggerManager.LogInfo($"Insetring User into the Database.....");
         var result = await _userManager.CreateAsync(userToInsert, userForCreation.Password);
 
         if(result.Succeeded)
-            await _userManager.AddToRolesAsync(userToInsert, userForCreation.UserRoles);
-
+        {
+            _loggerManager.LogInfo($"User Creation Successful -- Adding Roles - User: {JsonSerializer.Serialize(userForCreation)}");
+            var assignRoleResult = await _userManager.AddToRolesAsync(userToInsert, userForCreation.UserRoles);
+            _loggerManager.LogInfo($"Assign Role Result - {assignRoleResult.Succeeded}, Errors - {string.Join(", ", assignRoleResult.Errors.Select(x => x.Description))}"); 
+        }
+        _loggerManager.LogInfo($"User Creation and role assign successful - User: {JsonSerializer.Serialize(userForCreation)}");
         //await _userManager.AddToRolesAsync(userToInsert, userForCreation.UserRoles);
 
         return result;

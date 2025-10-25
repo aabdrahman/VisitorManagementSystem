@@ -66,7 +66,7 @@ public class AuthenticationController : ControllerBase
             return BadRequest(errorResult);
         }
 
-        return Created();
+        return StatusCode(201, "Role Creation Successful.");
     }
 
     [HttpGet("getRoles")]
@@ -95,14 +95,14 @@ public class AuthenticationController : ControllerBase
 
         if(!result.Succeeded)
         {
-            foreach (var error in result.Errors)
-            {
-                ModelState.TryAddModelError(error.Code, error.Description);
-            }
-            return BadRequest(ModelState);
+            //foreach (var error in result.Errors)
+            //{
+            //    ModelState.TryAddModelError(error.Code, error.Description);
+            //}
+            return BadRequest(string.Join(", ", result.Errors.Select(x => x.Description)));
         }
 
-        return StatusCode(201);
+        return StatusCode(201, "User Creation Successful.");
     }
 
     [HttpPost("login")]
