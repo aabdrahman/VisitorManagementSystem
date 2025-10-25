@@ -180,13 +180,18 @@
         popup.Open();
     }
 
-    private void PrevPage()
+    private async Task PrevPage()
     {
+        var currPage = _visitDetailRequestParameter.pageNumber;
+        _visitDetailRequestParameter.pageNumber = currPage - 1;
+        await HandleSpool();
 
     }
 
-    private void NextPage()
+    private async Task NextPage()
     {
-        
+        var currPage = _visitDetailRequestParameter.pageNumber;
+        _visitDetailRequestParameter.pageNumber = currPage + 1;
+        await HandleSpool();
     }
 }
