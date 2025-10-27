@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.StaticValues;
 
 namespace Entities.Model;
 
@@ -14,5 +10,5 @@ public class Visitor
     public string VisitorEmailAddress { get; set; }
     public DateTime CreatedDate { get; set; }
     public string Status { get; set; }
-
+    public Gender? Gender { get; set; }
 }

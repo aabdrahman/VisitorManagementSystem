@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Entities.StaticValues;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Shared.DataTransferObjects;
@@ -18,4 +19,5 @@ public class VisitorDto
     public string IsActive { get; set; }
     [DisplayName("Created Date")]
     public DateTime CreatedDate { get; set; }
+    public string Gender { get; set; }
 }

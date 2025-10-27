@@ -141,6 +141,10 @@ public static class ServiceExtension
     {
         services.AddAuthorization(options =>
         {
+            options.AddPolicy("UserPolicy", p =>
+            {
+                p.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Receptionist", "Admin", "User");
+            });
             options.AddPolicy("ReceptionistPolicy", p =>
             {
                 p.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Receptionist", "Admin");

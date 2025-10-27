@@ -35,6 +35,7 @@ else
                     <th>Name</th>
                     <th>Phone Number</th>
                     <th>Email Address</th>
+                    <th>Gender</th>
                     <th>Date Added</th>
                     <th>Status</th>
                     <th></th>
@@ -47,6 +48,7 @@ else
                         <td scope="col">@visitor.VisitorName</td>
                         <td>@visitor.PhoneNumber</td>
                         <td>@visitor?.EmailAddress</td>
+                        <td>@visitor?.Gender</td>
                         <td>@visitor?.CreatedDate.ToString("F")</td>
                         <td>
                             @if (visitor.IsActive.Contains("active"))

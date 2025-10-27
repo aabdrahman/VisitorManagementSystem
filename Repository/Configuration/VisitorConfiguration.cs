@@ -1,11 +1,6 @@
 ﻿using Entities.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository.Configuration;
 
@@ -25,6 +20,9 @@ public class VisitorConfiguration : IEntityTypeConfiguration<Visitor>
         builder.Property(x => x.CreatedDate)
             .HasDefaultValueSql("getdate()")
             .ValueGeneratedOnAdd();
+
+        builder.Property(x => x.Gender)
+            .HasConversion<string>();
 
         builder.Property(vi => vi.VisitorEmailAddress)
             .IsRequired(false);

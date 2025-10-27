@@ -12,13 +12,15 @@ public class Mapping : Profile
         CreateMap<CreateVisitorDto, Visitor>()
             .ForMember(o => o.VisitorPhoneNumber, src => src.MapFrom(x => x.PhoneNumber))
             .ForMember(o => o.VisitorEmailAddress, src => src.MapFrom(x => x.EmailAdddress))
-            .ForMember(o => o.VisitorName, src => src.MapFrom(x => x.VisitorName));
+            .ForMember(o => o.VisitorName, src => src.MapFrom(x => x.VisitorName))
+            .ForMember(dest => dest.Gender, src => src.MapFrom(x => Enum.Parse(typeof(Gender), x.Gender, true)));
         CreateMap<Visitor, VisitorDto>()
             .ForMember(x => x.PhoneNumber, src => src.MapFrom(y => y.VisitorPhoneNumber))
             .ForMember(x => x.EmailAddress, src => src.MapFrom(y => y.VisitorEmailAddress))
             .ForMember(x => x.VisitorName, src => src.MapFrom(y => y.VisitorName))
             .ForMember(x => x.CreatedDate, src => src.MapFrom(y => y.CreatedDate))
-            .ForMember(x => x.IsActive, src => src.MapFrom(y => y.Status));
+            .ForMember(x => x.IsActive, src => src.MapFrom(y => y.Status))
+            .ForMember(dest => dest.Gender, src => src.MapFrom(x => x.Gender.ToString()));
         CreateMap<CreateVisitDetailDto, VisitDetail>()
             .ForMember(dest => dest.VisitorPhoneNumber, src => src.MapFrom(x => x.VisitorPhoneNumber))
             .ForMember(dest => dest.VisitorEmailAddress, src => src.MapFrom(x => x.VisitorEmailAddress))

@@ -31,6 +31,8 @@ builder.Services.AddScoped<GetUsersHandler>();
 builder.Services.AddScoped<AddRoleHandler>();
 builder.Services.AddScoped<RegisterUserHandler>();
 builder.Services.AddScoped<AuthenticationSignoutHandler>();
+builder.Services.AddScoped<GetVisitorByPhoneNumberHandler>();
+builder.Services.AddScoped<ScheduleVisitHandler>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

@@ -2,9 +2,12 @@
 @using Entities
 @using Entities.StaticValues
 @using VisitorManagementSystem.Client.Handler.Visit
+@using VisitorManagementSystem.Client.Handler.Visitor
 
 
 @inject GetVisitsHandler getVisitsHandler
 @inject CheckinHandler checkinHandler
 @inject AuthenticationStateProvider authStateProvider
 @inject CheckoutHandler checkoutHandler
+@inject GetVisitorByPhoneNumberHandler getVisitorByPhoneNumberHandler
+@inject ScheduleVisitHandler scheduleVisitHandler

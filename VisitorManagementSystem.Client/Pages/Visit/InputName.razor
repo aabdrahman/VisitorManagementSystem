@@ -1,0 +1,63 @@
+﻿@inherits InputBase<string>
+
+<div class="d-flex flex-row gap-5 w-100">
+    <div class="d-flex flex-column gap-2 w-50">
+        <div class="d-flex flex-row gap-3">
+            <label class="form-label w-25 fw-bold" for="firstname">First Name: </label>
+            <input type="text" name="firstname" class="form-control w-75" value="@_firstName" readonly="@IsReadOnly" @oninput="OnChangeFirstName" />
+        </div>
+        @if(_firstName is null)
+        {
+            <span class="validation-message">First Name is required.</span>
+        }
+    </div>
+    <div class="d-flex flex-column gap-2 w-50">
+        <div class="fex-row d-flex gap-3">
+            <label class="form-label w-25 fw-bold" for="lastname">Last Name: </label>
+            <input type="text" name="lastname" class="form-control w-75" readonly="@IsReadOnly" value="@_lastName" @oninput="OnChangeLastName" />
+        </div>
+        @if (_lastName is null)
+        {
+            <span class="validation-message">Last Name is required.</span>
+        }
+    </div>
+</div>
+
+@code {
+    private string _firstName = string.Empty;
+    private string _lastName = string.Empty;
+
+    [Parameter]
+    public bool IsReadOnly { get; set; }
+
+    private void OnChangeLastName(ChangeEventArgs e)
+    {
+        _firstName = e?.Value?.ToString() ?? string.Empty;
+        SetCurrentValue();
+    }
+    private void OnChangeFirstName(ChangeEventArgs e)
+    {
+        _lastName = e?.Value?.ToString() ?? string.Empty;
+        SetCurrentValue();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if(!string.IsNullOrEmpty(CurrentValue))
+        {
+            var names = CurrentValue.Split(" ");
+            _firstName = names[0];
+            _lastName = names[1];
+        }
+    }
+
+    private void SetCurrentValue()
+    {
+        CurrentValue = string.Join(" ", new[] { _firstName, _lastName }.Where(s => !string.IsNullOrWhiteSpace(s)));
+    }
+
+    protected override bool TryParseValueFromString(string value, out string result, out string validationErrorMessage)
+    {
+        throw new NotImplementedException();
+    }
+}

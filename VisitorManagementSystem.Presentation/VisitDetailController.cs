@@ -43,6 +43,8 @@ public class VisitDetailController : ControllerBase
 
     [HttpPost("scheduleVisit")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
+    [Authorize(Policy = "UserPolicy")]
+    [EnableRateLimiting(policyName: "SpecialPolicy")]
     public async Task<IActionResult> ScheduleVisit([FromBody] ScheduleVisitDetailDto scheduleVisitDetail)
     {
         var result = await _serviceManager.VisitDetailService.ScheduleVisit(scheduleVisitDetail);

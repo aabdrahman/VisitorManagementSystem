@@ -30,7 +30,7 @@ public class ServiceManager : IServiceManager
         _contextAccessor = contextAccessor;
         _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(mapper, loggerManager, repositoryManager, userManager, roleManager, configuration, _contextAccessor));
         _vistorService = new Lazy<IVistorService>(() => new VisitorService(loggerManager, repositoryManager, mapper));
-        _visitDetailService = new Lazy<IVisitDetailService>(() => new VisitDetailService(repositoryManager, mapper, loggerManager));
+        _visitDetailService = new Lazy<IVisitDetailService>(() => new VisitDetailService(repositoryManager, mapper, loggerManager, _contextAccessor));
     }
 
     public IVisitDetailService VisitDetailService => _visitDetailService.Value;

@@ -3,6 +3,8 @@ using Contracts;
 using Entities.Exceptions;
 using Entities.Model;
 using Entities.Response;
+using Entities.StaticValues;
+using Microsoft.AspNetCore.Http;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
@@ -15,12 +17,14 @@ public class VisitDetailService : IVisitDetailService
     private readonly IMapper _mapper;
     private readonly IRepositoryManager _repositoryManager;
     private readonly ILoggerManager _loggerManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public VisitDetailService(IRepositoryManager repositoryManager, IMapper mapper, ILoggerManager loggerManager)
+    public VisitDetailService(IRepositoryManager repositoryManager, IMapper mapper, ILoggerManager loggerManager, IHttpContextAccessor httpContextAccessor)
     {
         _repositoryManager = repositoryManager;
         _mapper = mapper;
         _loggerManager = loggerManager;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<(IEnumerable<VisitDetailDto> visits, MetaData metaData)> GetAllVisits(VisitDetailRequestParameter visitDetailRequestParameter, bool trackChanges, bool ignoreQueryFilter)
@@ -50,16 +54,16 @@ public class VisitDetailService : IVisitDetailService
     {
         _loggerManager.LogInfo($"Creating record for: {JsonSerializer.Serialize(createVisitDetail)}");
         var visitDetail = _mapper.Map<VisitDetail>(createVisitDetail);
-        visitDetail.VisitStatus = Entities.StaticValues.VisitStatus.Pending;
+        visitDetail.VisitStatus = VisitStatus.Pending;
         //visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
         //visitDetail.VisitType = Entities.StaticValues.VisitType.WalkIn;
         //visitDetail.VisitorRegistrationType = Entities.StaticValues.VisitorRegistrationTypes.FirstTime;
         //visitDetail.CreatedDate = DateTime.UtcNow;
         visitDetail.VisitorIdentificationNumber = GenerateVisitorIdentificationNumber();
 
-        if(visitDetail.VisitorRegistrationType == Entities.StaticValues.VisitorRegistrationTypes.FirstTime)
+        if (visitDetail.VisitorRegistrationType == VisitorRegistrationTypes.FirstTime)
         {
-            var visitor = new CreateVisitorDto(VisitorName: createVisitDetail.VisitorName, PhoneNumber: createVisitDetail.VisitorPhoneNumber, EmailAdddress: createVisitDetail.VisitorEmailAddress);
+            var visitor = new CreateVisitorDto(VisitorName: createVisitDetail.VisitorName, PhoneNumber: createVisitDetail.VisitorPhoneNumber, EmailAdddress: createVisitDetail.VisitorEmailAddress, createVisitDetail.VisitorGender);
 
             var visitorToInsert = _mapper.Map<Visitor>(visitor);
 
@@ -85,7 +89,7 @@ public class VisitDetailService : IVisitDetailService
             return Response.CreateErrorResponse(null, $"No Visit for provided Id: {updateVisitDetailStatus.VisitorIdentificationNumber}", "99");
         }
 
-        if(existingVisitDetail.VisitStatus == Entities.StaticValues.VisitStatus.CheckedOut)
+        if(existingVisitDetail.VisitStatus == VisitStatus.CheckedOut)
         {
             _loggerManager.LogWarning($"Provided Visit Detail has an invalid status: {existingVisitDetail.VisitStatus}");
             return Response.CreateErrorResponse(null, $"Invalid Id provided: Status: {existingVisitDetail.VisitStatus.ToString()}", "90");
@@ -102,14 +106,36 @@ public class VisitDetailService : IVisitDetailService
 
     public async Task<VisitDetailDto> ScheduleVisit(ScheduleVisitDetailDto scheduledVisit)
     {
-        _loggerManager.LogInfo($"Schedule Visit For: {scheduledVisit}");
+        _loggerManager.LogInfo($"Schedule Visit For: {JsonSerializer.Serialize(scheduledVisit)}");
         var visitDetailToInsert = _mapper.Map<VisitDetail>(scheduledVisit);
 
         var visitorIdentificationNumber = GenerateVisitorIdentificationNumber();
 
         visitDetailToInsert.VisitorIdentificationNumber = visitorIdentificationNumber;
-        visitDetailToInsert.VisitStatus = Entities.StaticValues.VisitStatus.Scheduled;
-        visitDetailToInsert.VisitType = Entities.StaticValues.VisitType.Appointment;
+        visitDetailToInsert.VisitStatus = VisitStatus.Scheduled;
+        visitDetailToInsert.VisitType = VisitType.Appointment;
+
+
+
+        if(scheduledVisit.VisitorRegistrationType == VisitorRegistrationTypes.FirstTime.ToString())
+        {
+            _loggerManager.LogInfo($"Validate Visitor exists for: {scheduledVisit.VisitorPhoneNumber}");
+
+            var possibleExistingVisitor = await _repositoryManager.VisitorRepository.GetVisitorByPhoneNumber(scheduledVisit.VisitorPhoneNumber, false, false);
+
+            if(possibleExistingVisitor is null)
+            {
+                _loggerManager.LogInfo($"Creating Entity For first timer...");
+
+                var visitor = new CreateVisitorDto(scheduledVisit.VisitorName, scheduledVisit.VisitorPhoneNumber, scheduledVisit.VisitorEmailAddress, scheduledVisit.VisitorGender);
+
+                var visitorToInsert = _mapper.Map<Visitor>(visitor);
+                _repositoryManager.VisitorRepository.AdVisitor(visitorToInsert);
+                visitDetailToInsert.VisitorRegistrationType = VisitorRegistrationTypes.Recurring;
+                _loggerManager.LogInfo($"Visitor Inserted. Pending Database Update.");
+            }
+           
+        }
 
         _loggerManager.LogInfo($"Inserting Record Into Database: {visitDetailToInsert}");
         _repositoryManager.VisitDetailRepository.CreateVisitetail(visitDetailToInsert);
@@ -130,7 +156,7 @@ public class VisitDetailService : IVisitDetailService
 
         if (visitDetails == null)
             throw new VisitDetailNotFoundException(checkInDetails.VisitorIdentificationNumber);
-        if(visitDetails.VisitStatus != Entities.StaticValues.VisitStatus.Scheduled && visitDetails.VisitStatus != Entities.StaticValues.VisitStatus.Pending)
+        if(visitDetails.VisitStatus != VisitStatus.Scheduled && visitDetails.VisitStatus != VisitStatus.Pending)
             throw new InvalidVisitStatusException(visitDetails.VisitStatus.ToString());
         if (!await ValidateCardNumberAvailable(checkInDetails))
             throw new InvalidCardDetailsException(checkInDetails.CardNumber);
@@ -159,11 +185,11 @@ public class VisitDetailService : IVisitDetailService
 
         if (visitDetails == null)
             throw new VisitDetailNotFoundException(visitorDetailsCheckIn.VisitorIdentificationNumber);
-        if (visitDetails.VisitStatus != Entities.StaticValues.VisitStatus.CheckedIn)
+        if (visitDetails.VisitStatus != VisitStatus.CheckedIn)
             throw new InvalidVisitStatusException($"Visit Status is: {visitDetails.VisitStatus.ToString()}. Cannot CheckOut");
 
         visitDetails.CheckOutTime = DateTime.Now;
-        visitDetails.VisitStatus = Entities.StaticValues.VisitStatus.CheckedOut;
+        visitDetails.VisitStatus = VisitStatus.CheckedOut;
 
         _repositoryManager.VisitDetailRepository.UpdateRecord(visitDetails);
         await _repositoryManager.SaveChanges();

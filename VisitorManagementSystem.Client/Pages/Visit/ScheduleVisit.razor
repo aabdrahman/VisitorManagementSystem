@@ -1,0 +1,226 @@
+﻿@page "/schedule-visit"
+@using System.Text.Json
+@attribute [Authorize(Roles = "Admin, User, Receptionist")]
+
+<PageTitle>Schedule Visit</PageTitle>
+
+<h3 class="display-3">Schedule Visit</h3>
+
+@if(_editContext is not null)
+{
+    @if(_scheduleVisitResponse is not null)
+    {
+        <div class="text-center alert alert-@(_scheduleVisitSuccessStatus ? "success" : "danger")">
+            @_scheduleVisitResponse
+        </div>
+    }
+    <div class="container-fluid w-100">
+        <EditForm Enhance EditContext="_editContext" OnValidSubmit="OnHandleSubmit">
+            <DataAnnotationsValidator />
+            <div class="d-flex flex-column gap-3 w-100 h-100 p-2">
+                <div class="d-flex flex-row gap-5 w-100 order-0">
+                    <div class="d-flex flex-column gap-2 w-50">
+                        <div class="d-flex flex-row gap-1 justify-content-between">
+                            <label for="hostname" class="form-label fw-bold w-25">Host Name: </label>
+                            <InputText @bind-Value="_scheduleVisitDetail.HostName" class="form-control w-75" name="hostname" readonly="true" />
+                        </div>
+                        <ValidationMessage For="(() => _scheduleVisitDetail.HostName)" />
+                        
+                    </div>
+                    <div class="d-flex flex-column gap-2 w-50">
+                        <div class="d-flex flex-row gap-1 justify-content-between">
+                            <label for="visittype" class="fw-bold form-label w-25">Visit Type: </label>
+                            <InputText @bind-Value="_scheduleVisitDetail.VisitType" class="form-control w-75" name="visittype" readonly="true" />
+                        </div>
+                        <ValidationMessage For="(() => _scheduleVisitDetail.VisitType)" />
+                    </div>
+                </div>
+                <div class="d-flex flex-row gap-5 w-100 order-1">
+                    <div class="d-flex gap-2 w-50 flex-column">
+                        <div class="d-flex flex-row gap-2 justify-content-between">
+                            <label class="form-label w-25 fw-bold" for="visitregistrationtype">Registration Type: </label>
+                            <InputRadioGroup Name="visitregistrationtype" class="form-control w-75" @bind-Value="_scheduleVisitDetail.VisitorRegistrationType" @onchange="ManageRegistrationTypeChange">
+                                <div class="d-flex flex-row justify-content-between gap-3">
+                                    @foreach (var item in Enum.GetValues(typeof(VisitorRegistrationTypes)))
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <InputRadio class="form-check-input" Value="item.ToString()" />
+                                            <label>@item.ToString()</label>
+                                        </div>
+                                    }
+                                </div>
+                            </InputRadioGroup>
+                        </div>
+                        <ValidationMessage For="(() => _scheduleVisitDetail.VisitorRegistrationType)" />
+                    </div>
+                    <div class="d-flex gap-5 w-50 flex-column">
+                        <div class="d-flex flex-row justify-content-between gap-2">
+                            <label class="form-label w-25 fw-bold" for="visitationdate">Visitation Date: </label>
+                            <InputDate class="form-control w-75" @bind-Value="_scheduleVisitDetail.VisitationDate" name="visitationdate" min="@(DateOnly.FromDateTime(DateTime.Now))" />
+                        </div>
+                        <ValidationMessage For="(() => _scheduleVisitDetail.VisitationDate)" />
+                        @if (_scheduleVisitDetail.VisitationDate < DateOnly.FromDateTime(DateTime.UtcNow) && _scheduleVisitDetail.VisitationDate != DateOnly.MinValue)
+                        {
+                            <span class="validation-message text-center" role="alert">Visitation Date cannot be a past date</span>
+                        }
+                    </div>
+                </div>
+                @if(!string.IsNullOrEmpty(_scheduleVisitDetail.VisitorRegistrationType))
+                {
+                    <div class="d-flex w-100 order-@(_scheduleVisitDetail.VisitorRegistrationType == VisitorRegistrationTypes.Recurring.ToString() ? "3" : "2")">
+                        <InputName name="visitorname" @bind-Value="_scheduleVisitDetail.VisitorName" IsReadOnly="@(_scheduleVisitDetail.VisitorRegistrationType == VisitorRegistrationTypes.Recurring.ToString())" />
+                        <ValidationMessage For="(() => _scheduleVisitDetail.VisitorName)" />
+                    </div>
+                    <div class="d-flex flex-row gap-5 w-100 order-@(_scheduleVisitDetail.VisitorRegistrationType == VisitorRegistrationTypes.Recurring.ToString() ? "2" : "3")">
+                        <div class="d-flex flex-column gap-2 w-50">
+                            <div class="d-flex flex-row gap-2 justify-content-between">
+                                <label for="phonenumber" class="form-label w-25 fw-bold">Phone Number: </label>
+                                <InputText @bind-Value="_scheduleVisitDetail.VisitorPhoneNumber" class="form-control w-75" name="phonenmber" @onkeydown="GetVisitorDetailsByPhoneNumber" />
+                            </div>
+                            <ValidationMessage class="text-center" For="(() => _scheduleVisitDetail.VisitorPhoneNumber)" />
+                            @if(_getVisitorResponse is not null)
+                            {
+                                <span class="validation-message text-center">@_getVisitorResponse</span>
+                            }
+                        </div>
+                        <div class="d-flex flex-column gap-2 w-50">
+                            <div class="d-flex justify-content-between flex-row gap-2">
+                                <label for="emailaddress" class="form-label w-25 fw-bold">Email Address: </label>
+                                <InputText @bind-Value="_scheduleVisitDetail.VisitorEmailAddress" class="w-75 form-control" name="emailaddress" readonly="@(_scheduleVisitDetail.VisitorRegistrationType == VisitorRegistrationTypes.Recurring.ToString())" />
+                            </div>
+                            <ValidationMessage For="(() => _scheduleVisitDetail.VisitorEmailAddress)" />
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row gap-5 w-100 order-4">
+                        <div class="d-flex flex-column gap-2 w-50">
+                            <div class="d-flex justify-content-between gap-3 flex-row">
+                                <label for="gender" class="form-label w-25 fw-bold">Gender: </label>
+                                <InputRadioGroup @bind-Value="_scheduleVisitDetail.VisitorGender" class="form-control w-75">
+                                    @foreach (Gender item in Enum.GetValues(typeof(Gender)))
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <InputRadio class="form-check-input" Value="@item.ToString()" />
+                                            <label class="form-check-label">@item</label>
+                                        </div>
+                                    }
+                                </InputRadioGroup>
+                            </div>
+                            <ValidationMessage For="(() => _scheduleVisitDetail.VisitorGender)" />
+                        </div>
+                        <div class="d-flex flex-column gap-2 w-50">
+                            <div class="d-flex justify-content-between gap-2 flex-row">
+                                <label for="purposeofvisit" class="form-label w-25 fw-bold">Purpose of Visit: </label>
+                                <InputText name="purposeofvisit" class="form-control w-75" @bind-Value="_scheduleVisitDetail.PurposeOfVisit" />
+                            </div>
+                            <ValidationMessage For="(() => _scheduleVisitDetail.PurposeOfVisit)" />
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center order-5">
+                        <button class="btn btn-secondary" type="button" @onclick="ResetForm">Cancel</button>
+                        @if(_isLoading)
+                        {
+                            <button class="btn btn-primary" type="button" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Loading...
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" type="submit">Schedule Visit</button>
+                        }
+
+                    </div>
+                }
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    private EditContext _editContext;
+    private ScheduleVisitDetailDto _scheduleVisitDetail;
+    private string _loggedinUser;
+    private bool _isRecurring;
+    private string _getVisitorResponse;
+    private bool _isLoading;
+    private string _scheduleVisitResponse;
+    private bool _scheduleVisitSuccessStatus;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await authStateProvider.GetAuthenticationStateAsync()).User;
+        _loggedinUser = user.FindFirst(x => x.Type.EndsWith("claims/name"))?.Value ?? "anonymous";
+        _scheduleVisitDetail = new();
+        _scheduleVisitDetail.HostName = _loggedinUser.Replace(".", " ");
+        _scheduleVisitDetail.VisitType = VisitType.Appointment.ToString();
+        _scheduleVisitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
+        _editContext = new EditContext(_scheduleVisitDetail);
+    }
+
+    private async Task OnHandleSubmit()
+    {
+        _isLoading = true;
+        var response = await scheduleVisitHandler.Handle(_scheduleVisitDetail);
+        _scheduleVisitResponse = response.Item2; _scheduleVisitSuccessStatus = response.Item1;
+        _isLoading = false;
+        if(_scheduleVisitSuccessStatus)
+        {
+            await ResetForm();
+        }
+    }
+
+    private async Task ResetForm()
+    {
+        var user = (await authStateProvider.GetAuthenticationStateAsync()).User;
+        _loggedinUser = user.FindFirst(x => x.Type.EndsWith("claims/name"))?.Value ?? "anonymous";
+        _scheduleVisitDetail = new();
+        _scheduleVisitDetail.HostName = _loggedinUser.Replace(".", " ");
+        _scheduleVisitDetail.VisitType = VisitType.Appointment.ToString();
+        _scheduleVisitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
+        _editContext = new EditContext(_scheduleVisitDetail);
+        _getVisitorResponse = default; _scheduleVisitResponse = default;
+        _scheduleVisitSuccessStatus = default;
+    }
+
+    private async Task GetVisitorDetailsByPhoneNumber(KeyboardEventArgs args)
+    {
+        if(args.Key == "Enter" && _scheduleVisitDetail.VisitorRegistrationType == VisitorRegistrationTypes.Recurring.ToString())
+        {
+            await Task.Delay(500);
+            var response = await getVisitorByPhoneNumberHandler.Handle(_scheduleVisitDetail.VisitorPhoneNumber);
+            if(response is null)
+            {
+                _getVisitorResponse = "An Error Occurred";
+                return;
+            }
+
+            if(response?.ResponseCode != "00")
+            {
+                _getVisitorResponse = response.ResponseMessage;
+                return;
+            }
+
+            var visitor = JsonSerializer.Deserialize<VisitorDto>(JsonSerializer.Serialize(response.ResponseData), new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+            _scheduleVisitDetail.VisitorName = visitor.VisitorName;
+            _scheduleVisitDetail.VisitorEmailAddress = visitor.EmailAddress;
+            _scheduleVisitDetail.VisitorPhoneNumber = visitor.PhoneNumber;
+            _scheduleVisitDetail.VisitorGender = visitor.Gender;
+            _editContext = new EditContext(_scheduleVisitDetail);
+            StateHasChanged();
+        }
+    }
+
+    private void ManageRegistrationTypeChange()
+    {
+        if(_scheduleVisitDetail.VisitorRegistrationType == VisitorRegistrationTypes.Recurring.ToString())
+        {
+            _isRecurring = true;
+        }
+        else
+        {
+            _isRecurring = false;
+        }
+        Console.WriteLine($"Is Recurring: {_isRecurring}");
+    }
+}
