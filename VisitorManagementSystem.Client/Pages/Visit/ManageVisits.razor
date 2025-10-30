@@ -7,7 +7,7 @@
 *@
 
 <div class="container-fluid">
-    <div class="row">
+    <div class="row justify-content-around">
         <div class="d-flex flex-column justify-content-start align-items-center my-2 gap-2 col-lg-2">
             <label for="startdate" class="fw-bold text-start fst-normal mb-1">Start Date:</label>
             <input type="date" name="startdate" class="form-control" placeholder="" @bind-value="_visitDetailRequestParameter.startDate" @bind-value:event="oninput" />
@@ -48,6 +48,19 @@
         <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
+    </div>
+}
+
+@if(_visits.Count() == 0 && _metaData is not null)
+{
+    <div class="no-trails" style="text-align:center;margin-top:100px;">
+        <svg viewBox="0 0 16 16" class="bi bi-tree" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:200px;">
+            <path fill-rule="evenodd" d="M8 0a.5.5 0 0 1 .416.223l3 4.5A.5.50 0 1 11 5.5h-.098l2.022 3.235a.5.5 0 0 1-.424.765h-.191l1.638 3.276a.5.50 0 1-.447.724h-11a.5.5 0 0 1-.447-.724L3.69 9.5H3.5a.5.5 0 01-.424-.765L5.098 5.5H5a.5.5 0 0 1-.416-.777l3-4.5A.5.5 0 0 1 8 0zM5.9344.5H6a.5.5 0 0 1 .424.765L4.402 8.5H4.5a.5.5 0 0 1 .447.724L3.3112.5h9.382l-1.638-3.276A.5.5 0 0 1 11.5 8.5h.098L9.576 5.265A.5.5 0 0 110 4.5h.066L8 1.401 5.934 4.5z" />
+            <path d="M7 13.5h2V16H7v-2.5z" />
+        </svg>
+        <h3 class="text-muted fw-light">
+            No Visits for provided parameters
+        </h3>
     </div>
 }
 

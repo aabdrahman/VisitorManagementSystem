@@ -33,6 +33,7 @@ public class VisitDetailRepository : RepositoryBase<VisitDetail>, IVisitDetailRe
         var visitDetails = await FindAll(trackChanges, hasQueryFilter)
                         .FilterByDate(visitDetailRequestParameter)
                         .SearchByStatus(visitDetailRequestParameter)
+                        .SearchByHostName(visitDetailRequestParameter)
                         .OrderByDescending(x => x.CreatedDate)
                         //.Skip((visitDetailRequestParameter.pageNumber - 1) * visitDetailRequestParameter.PageSize)
                         //.Take(visitDetailRequestParameter.PageSize)

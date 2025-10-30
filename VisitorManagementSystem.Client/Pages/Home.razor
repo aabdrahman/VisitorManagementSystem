@@ -1,6 +1,14 @@
 ﻿@page "/"
 @using System.Security.Claims
+@using Entities.StaticValues
+@using Shared.RequestFeatures
+@using VisitorManagementSystem.Client.Handler.Visit
+
+@inject GetVisitsHandler getVisitsHandler
+
 @attribute [Authorize]
+
+
 <PageTitle>Home</PageTitle>
 
 
@@ -9,3 +17,168 @@
         Welcome @context.User.FindFirst(x => x.Type.Contains("FirstName"))?.Value
     </Authorized>
 </AuthorizeView>
+
+<VisitorManagementSystem.Client.Pages.Visit.UserSearchFilter HandleSpool="HandleSpool" />
+
+@if(_isLoading)
+{
+    <div class="d-flex justify-content-center my-4 w-100 h-100">
+        <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+
+@if(_visits is not null)
+{
+    if(_visits.Count() == 0)
+    {
+        <div class="no-trails" style="text-align:center;margin-top:100px;">
+            <svg viewBox="0 0 16 16" class="bi bi-tree" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:200px;">
+                <path fill-rule="evenodd" d="M8 0a.5.5 0 0 1 .416.223l3 4.5A.5.50 0 1 11 5.5h-.098l2.022 3.235a.5.5 0 0 1-.424.765h-.191l1.638 3.276a.5.50 0 1-.447.724h-11a.5.5 0 0 1-.447-.724L3.69 9.5H3.5a.5.5 0 01-.424-.765L5.098 5.5H5a.5.5 0 0 1-.416-.777l3-4.5A.5.5 0 0 1 8 0zM5.9344.5H6a.5.5 0 0 1 .424.765L4.402 8.5H4.5a.5.5 0 0 1 .447.724L3.3112.5h9.382l-1.638-3.276A.5.5 0 0 1 11.5 8.5h.098L9.576 5.265A.5.5 0 0 110 4.5h.066L8 1.401 5.934 4.5z" />
+                <path d="M7 13.5h2V16H7v-2.5z" />
+            </svg>
+            <h3 class="text-muted fw-light">
+                No Visits
+            </h3>
+        </div>
+    }
+    else
+    {
+       
+        <div class="d-flex justify-content-center align-items-center py-2">
+            <table class="table table-striped table-hover mt-3">
+                <thead>
+                    <tr>
+                        @foreach (var item in typeof(VisitDetailDto).GetMembers().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).Select(x => x.Name))
+                        {
+                            <th scope="col">@item</th>
+                        }
+                        <th scope="col">Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var visit in _visits)
+                    {
+                        <tr>
+                            @foreach (var member in typeof(VisitDetailDto).GetMembers().Where(x => x.MemberType == System.Reflection.MemberTypes.Property))
+                            {
+
+                                <td @onclick="(() => ManageClick(visit))" class="text-center text-wrap fs-6 fst-italic">@visit.GetType().GetProperty(member.Name)?.GetValue(visit)</td>
+                            }
+                            <td>
+                                <div class="d-flex justify-content-evenly align-items-center">
+                                    @if (visit.VisitStatus == VisitStatus.Scheduled.ToString())
+                                    {
+                                        <button class="btn btn-outline-secondary" title="EditVisitDetails" @onclick="(() => ManageEditClick(visit))">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                                            </svg>
+                                        </button>
+                                    }
+                                    <button class="btn btn-outline-secondary" title="ViewVisitDetails" @onclick="(() => ManageViewOnlyClick(visit))">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-binoculars" viewBox="0 0 16 16">
+                                            <path d="M3 2.5A1.5 1.5 0 0 1 4.5 1h1A1.5 1.5 0 0 1 7 2.5V5h2V2.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5v2.382a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V14.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 14.5v-3a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5v3A1.5 1.5 0 0 1 5.5 16h-3A1.5 1.5 0 0 1 1 14.5V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882zM4.5 2a.5.5 0 0 0-.5.5V3h2v-.5a.5.5 0 0 0-.5-.5zM6 4H4v.882a1.5 1.5 0 0 1-.83 1.342l-.894.447A.5.5 0 0 0 2 7.118V13h4v-1.293l-.854-.853A.5.5 0 0 1 5 10.5v-1A1.5 1.5 0 0 1 6.5 8h3A1.5 1.5 0 0 1 11 9.5v1a.5.5 0 0 1-.146.354l-.854.853V13h4V7.118a.5.5 0 0 0-.276-.447l-.895-.447A1.5 1.5 0 0 1 12 4.882V4h-2v1.5a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5zm4-1h2v-.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm4 11h-4v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zm-8 0H2v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        @*
+        <VisitorManagementSystem.Client.Pages.Visit.VisitDetails Visits="_visits" />
+        *@
+        @if (_metaData is not null)
+        {
+            <div class="d-flex align-items-center justify-content-center mt-1 gap-3">
+                <button class="btn btn-primary rounded-pill" disabled="@(!_metaData.hasPrevious)" role="button" type="button" @onclick="PrevPage">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+
+                <span>Page @_metaData.currentPage of @_metaData.totalPages</span>
+
+                <button class="btn btn-primary rounded-pill" disabled="@(!_metaData.hasNext)" @onclick="NextPage">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        }
+    }
+}
+
+<Popup @ref="popup" ShowCloseButton="true" Title="@_title">
+    <Body>
+        @if(_operationType == OperationType.ViewVisit)
+        {
+            <VisitorManagementSystem.Client.Pages.Visit.ScheduledVisitOperation ReadOnly="true" Visit="_selectedVisit" />
+        }
+        else if(_operationType == OperationType.EditVisit)
+        {
+            <VisitorManagementSystem.Client.Pages.Visit.ScheduledVisitOperation ReadOnly="false" HandleClose="(() => popup.Close())" Visit="_selectedVisit" />
+        }
+    </Body>
+</Popup>
+
+@code {
+    private IEnumerable<VisitDetailDto> _visits;
+    private MetaData _metaData;
+    private bool _isLoading;
+    private VisitDetailDto _selectedVisit =new();
+    private Popup popup;
+    private string _title;
+    private OperationType _operationType;
+
+    private async Task HandleSpool(VisitDetailRequestParameter visitDetailRequestParameter)
+    {
+        var response = await getVisitsHandler.Handle(visitDetailRequestParameter);
+
+        _visits = response.Item1;_metaData = response.Item2;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+    }
+
+    private void ManageClick(VisitDetailDto visitDetail)
+    {
+
+    }
+
+    private void ManageViewOnlyClick(VisitDetailDto visitDetail)
+    {
+        _selectedVisit = visitDetail;
+        _operationType = OperationType.ViewVisit;
+        _title = "Visit Details";
+        popup.Open();
+    }
+
+    private void ManageEditClick(VisitDetailDto visitDetail)
+    {
+        _selectedVisit = visitDetail;
+        _operationType = OperationType.EditVisit;
+        _title = "Edit Visit";
+        popup.Open();
+    }
+
+    private async Task PrevPage()
+    {
+        throw new NotImplementedException();
+    }
+    private async Task NextPage()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+@code {
+    enum OperationType
+    {
+        None,
+        ViewVisit,
+        EditVisit
+    }
+}

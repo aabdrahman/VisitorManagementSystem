@@ -165,11 +165,12 @@
             {
                 _visitDetail.VisitorName = visitorDetailsResp.respDetails.VisitorName ?? "";
                 _visitDetail.VisitorEmailAddress = visitorDetailsResp.respDetails.EmailAddress ?? "";
+                _visitDetail.VisitorGender = visitorDetailsResp.respDetails.Gender;
                 isPhoneNumberExists = true;
             }
             _editContext.NotifyFieldChanged(FieldIdentifier.Create(() => _visitDetail.VisitorName));
             _editContext.NotifyFieldChanged(FieldIdentifier.Create(() => _visitDetail.VisitorEmailAddress));
-
+            _editContext.NotifyFieldChanged(FieldIdentifier.Create(() => _visitDetail.VisitorGender));
         }
     }
 

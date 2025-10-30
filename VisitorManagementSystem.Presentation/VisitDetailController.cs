@@ -54,7 +54,7 @@ public class VisitDetailController : ControllerBase
     }
 
     [HttpPost("update-status")]
-    [Authorize(Policy = "ReceptionistPolicy")]
+    [Authorize(Policy = "UserPolicy")]
     public async Task<IActionResult> UpdateVisitStatus([FromBody] UpdateVisitStatusDto updateVisitStatus)
     {
         var response = await _serviceManager.VisitDetailService.UpdateStatus(updateVisitStatus);

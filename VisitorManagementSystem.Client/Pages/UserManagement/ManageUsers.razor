@@ -143,7 +143,6 @@ else if(!_isLoading && _users?.Count() > 0)
     private async Task OnHandleSpool(UsersRequestParameter usersRequestParameter)
     {
         _isLoading = true;
-        Console.WriteLine(JsonSerializer.Serialize(usersRequestParameter));
         _users = await getUsersHandler.Handle(usersRequestParameter);
         _isLoading = false;
     }

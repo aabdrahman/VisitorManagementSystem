@@ -13,4 +13,5 @@ public interface IVisitDetailService
     Task<SuccessfulCheckInDetailsDto> UpdateCheckOut(VisitorDetailsCheckInDto visitorDetailsCheckIn);
     Task<Response> CreateVisit(CreateVisitDetailDto createVisitDetail);
     Task<Response> UpdateStatus(UpdateVisitStatusDto updateVisitDetailStatus);
+    
 }

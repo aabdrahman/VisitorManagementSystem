@@ -1,0 +1,108 @@
+﻿@inject UpdateVisitStatusHandler updateVisitStatusHandler
+
+<div class="card border-0 shadow-lg">
+
+    @if(_responseMessage is not null)
+    {
+        <div class="alert alert-@(_isSuccessful ? "success" : "danger")">
+            @_responseMessage
+        </div>
+    }
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Visit Details</h4>
+        <span class="badge bg-dark fs-6">@Visit.VisitorIdentificationNumber</span>
+    </div>
+
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Visitor Name:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitorName</dd>
+
+            <dt class="col-sm-4">Phone Number:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitorPhoneNumber</dd>
+
+            <dt class="col-sm-4">Email Address:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitorEmailAddress</dd>
+
+            <dt class="col-sm-4">Gender:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitorGender</dd>
+
+            <dt class="col-sm-4">Host Name:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.HostName</dd>
+
+            <dt class="col-sm-4">Purpose of Visit:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.PurposeOfVisit</dd>
+
+            <dt class="col-sm-4">Visitation Date:</dt>
+            <dd class="col-sm-8 fw-bold">
+                @Visit.VisitDate.ToString("D")
+                
+            </dd>
+
+            <dt class="col-sm-4">Visit Status:</dt>
+            <dd class="col-sm-8 fw-bold">@Visit.VisitStatus</dd>
+        </dl>
+
+        @if (Visit.VisitStatus == VisitStatus.Scheduled.ToString() && !ReadOnly)
+        {
+            <div class="card-footer d-flex mt-2 justify-content-end">
+                @if(_isLoading)
+                {
+                    <button class="btn btn-danger" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Loading...
+                    </button>
+                }
+                else if(_isSuccessful)
+                {
+                    
+                }
+                else
+                {
+                    <button class="btn btn-danger" role="button" @onclick="CancelVisit">Cancel</button>
+                    @*<button class="btn btn-primary" role="button">Update</button>*@
+                }
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public VisitDetailDto Visit { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; } = true;
+
+    [Parameter]
+    public EventCallback HandleClose { get; set; }
+
+    private bool _isLoading;
+    private bool _isSuccessful;
+    private string _responseMessage;
+
+    protected override Task OnParametersSetAsync()
+    {
+        return base.OnParametersSetAsync();
+    }
+
+    private async Task CancelVisit()
+    {
+        _isLoading = true;
+        var requestBody = new UpdateVisitStatusDto() { VisitorIdentificationNumber = Visit.VisitorIdentificationNumber, UpdatedStatus = VisitStatus.Cancelled };
+        var response = await updateVisitStatusHandler.Handle(requestBody);
+        await Task.Delay(5000);
+        _isSuccessful = response.Item1;
+        _responseMessage = response.Item2;
+        _isLoading = false;
+    }
+
+    private async Task OnHandleClose()
+    {
+        _responseMessage = default;
+        _isLoading = default; _isSuccessful = default;
+        await HandleClose.InvokeAsync();
+    }
+}

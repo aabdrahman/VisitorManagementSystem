@@ -1,10 +1,5 @@
 ﻿using Entities.Model;
 using Shared.RequestFeatures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository.Extensions;
 
@@ -24,5 +19,13 @@ public static class RepositoryVisitDetailsExtension
 
         return visitDetails.Where(x => x.VisitStatus == filterStatus);
 
+    }
+
+    public static IQueryable<VisitDetail> SearchByHostName(this IQueryable<VisitDetail> visitDetails, VisitDetailRequestParameter visitDetailRequestParameter)
+    {
+        if(string.IsNullOrEmpty(visitDetailRequestParameter.HostName))
+            return visitDetails;
+
+        return visitDetails.Where(x => x.HostName.Contains(visitDetailRequestParameter.HostName.Replace(".", " ")));
     }
 }

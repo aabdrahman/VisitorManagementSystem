@@ -5,8 +5,14 @@
 <PageTitle>Schedule Visit</PageTitle>
 
 <h3 class="display-3">Schedule Visit</h3>
+@*
+<div class="d-flex w-100 justify-content-between align-items-center my-3 mx-4 px-4">
+    <button class="btn btn-primary text-center" role="button" @onclick="(() => _operationType = OperationType.ScheduleNewVisit)">Schedule New Visit</button>
+    <button class="btn btn-primary text-center" role="button" @onclick="(() => _operationType = OperationType.SpoolScheduledVisit)">Spool Scheduled Visit</button>
+</div>
+*@
 
-@if(_editContext is not null)
+@if(_operationType == OperationType.ScheduleNewVisit && _editContext is not null)
 {
     @if(_scheduleVisitResponse is not null)
     {
@@ -95,10 +101,12 @@
                         <div class="d-flex flex-column gap-2 w-50">
                             <div class="d-flex justify-content-between gap-3 flex-row">
                                 <label for="gender" class="form-label w-25 fw-bold">Gender: </label>
-                                <InputRadioGroup @bind-Value="_scheduleVisitDetail.VisitorGender" class="form-control w-75">
+                                <InputRadioGroup @bind-Value="_scheduleVisitDetail.VisitorGender" class="form-control w-75" >
                                     @foreach (Gender item in Enum.GetValues(typeof(Gender)))
                                     {
-                                        <div class="form-check form-check-inline">
+                                        <div class="form-check form-check-inline" style="@(_scheduleVisitDetail.VisitorRegistrationType == VisitorRegistrationTypes.Recurring.ToString()
+                                                                                             ? "pointer-events:none; opacity:1;"
+                                                                                             : "")">
                                             <InputRadio class="form-check-input" Value="@item.ToString()" />
                                             <label class="form-check-label">@item</label>
                                         </div>
@@ -135,6 +143,73 @@
         </EditForm>
     </div>
 }
+@*
+@if(_operationType == OperationType.SpoolScheduledVisit)
+{
+    <SearchFilter SpoolRequest="HandleSpool" />
+
+    if(_visits.Count() > 0)
+    {
+        <div class="d-flex justify-content-center align-items-center py-2">
+            <table class="table table-striped table-hover mt-3">
+                <thead>
+                    <tr>
+                        @foreach (var item in typeof(VisitDetailDto).GetMembers().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).Select(x => x.Name))
+                        {
+                            <th scope="col">@item</th>
+                        }
+                        <th scope="col">Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var visit in _visits)
+                    {
+                        <tr>
+                            @foreach (var member in typeof(VisitDetailDto).GetMembers().Where(x => x.MemberType == System.Reflection.MemberTypes.Property))
+                            {
+
+                                <td @onclick="(() => ManageClick(visit))" class="text-center text-wrap fs-6 fst-italic">@visit.GetType().GetProperty(member.Name)?.GetValue(visit)</td>
+                            }
+                            <td>
+                                <div class="d-flex justify-content-evenly align-items-center">
+                                    @if (visit.VisitStatus == VisitStatus.Pending.ToString() || visit.VisitStatus == VisitStatus.Scheduled.ToString())
+                                    {
+                                        <button class="btn btn-outline-secondary" title="CheckIn" @onclick="(() => ManageEditClick(visit))">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                                            </svg>
+                                        </button>
+                                    }
+                                    <button class="btn btn-outline-secondary" title="CheckOut" @onclick="(() => ManageViewOnlyClick(visit))">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-binoculars" viewBox="0 0 16 16">
+                                            <path d="M3 2.5A1.5 1.5 0 0 1 4.5 1h1A1.5 1.5 0 0 1 7 2.5V5h2V2.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5v2.382a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V14.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 14.5v-3a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5v3A1.5 1.5 0 0 1 5.5 16h-3A1.5 1.5 0 0 1 1 14.5V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882zM4.5 2a.5.5 0 0 0-.5.5V3h2v-.5a.5.5 0 0 0-.5-.5zM6 4H4v.882a1.5 1.5 0 0 1-.83 1.342l-.894.447A.5.5 0 0 0 2 7.118V13h4v-1.293l-.854-.853A.5.5 0 0 1 5 10.5v-1A1.5 1.5 0 0 1 6.5 8h3A1.5 1.5 0 0 1 11 9.5v1a.5.5 0 0 1-.146.354l-.854.853V13h4V7.118a.5.5 0 0 0-.276-.447l-.895-.447A1.5 1.5 0 0 1 12 4.882V4h-2v1.5a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5zm4-1h2v-.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm4 11h-4v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zm-8 0H2v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (_metaData is not null)
+        {
+            <div class="d-flex align-items-center justify-content-center mt-1 gap-3">
+                <button class="btn btn-primary rounded-pill" disabled="@(!_metaData.hasPrevious)" role="button" type="button" @onclick="PrevPage">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+
+                <span>Page @_metaData.currentPage of @_metaData.totalPages</span>
+               
+                <button class="btn btn-primary rounded-pill" disabled="@(!_metaData.hasNext)" @onclick="NextPage">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        }
+    }
+
+}
+*@
 
 @code {
     private EditContext _editContext;
@@ -145,6 +220,9 @@
     private bool _isLoading;
     private string _scheduleVisitResponse;
     private bool _scheduleVisitSuccessStatus;
+    private OperationType _operationType = default;
+    private IEnumerable<VisitDetailDto> _visits = [];
+    private MetaData _metaData;
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,6 +232,7 @@
         _scheduleVisitDetail.HostName = _loggedinUser.Replace(".", " ");
         _scheduleVisitDetail.VisitType = VisitType.Appointment.ToString();
         _scheduleVisitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
+        await Task.Delay(500);
         _editContext = new EditContext(_scheduleVisitDetail);
     }
 
@@ -178,8 +257,8 @@
         _scheduleVisitDetail.VisitType = VisitType.Appointment.ToString();
         _scheduleVisitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
         _editContext = new EditContext(_scheduleVisitDetail);
-        _getVisitorResponse = default; _scheduleVisitResponse = default;
-        _scheduleVisitSuccessStatus = default;
+        // _getVisitorResponse = default; _scheduleVisitResponse = default;
+        // _scheduleVisitSuccessStatus = default;
     }
 
     private async Task GetVisitorDetailsByPhoneNumber(KeyboardEventArgs args)
@@ -222,5 +301,45 @@
             _isRecurring = false;
         }
         Console.WriteLine($"Is Recurring: {_isRecurring}");
+    }
+
+}
+
+@code{
+
+    private enum OperationType
+    {
+        // None,
+        ScheduleNewVisit,
+        SpoolScheduledVisit
+    }
+
+    private async Task HandleSpool()
+    {
+
+    }
+
+    private void ManageClick(VisitDetailDto visitDetail)
+    {
+
+    }
+
+    private void ManageViewOnlyClick(VisitDetailDto visitDetail)
+    {
+        
+    }
+
+    private void ManageEditClick(VisitDetailDto visitDetail)
+    {
+        
+    }
+
+    private async Task PrevPage()
+    {
+        throw new NotImplementedException();
+    }
+    private async Task NextPage()
+    {
+        throw new NotImplementedException();
     }
 }

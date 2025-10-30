@@ -9,7 +9,7 @@ public class VisitDetailRequestParameter : RequestParameters
     public DateOnly endDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public VisitStatus? Status {  get; set; }
-
+    public string? HostName { get; set; } = string.Empty;
     public bool isValidDate() => startDate <= endDate;
 
 }
