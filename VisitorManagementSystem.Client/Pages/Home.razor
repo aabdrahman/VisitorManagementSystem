@@ -95,13 +95,13 @@
         @if (_metaData is not null)
         {
             <div class="d-flex align-items-center justify-content-center mt-1 gap-3">
-                <button class="btn btn-primary rounded-pill" disabled="@(!_metaData.hasPrevious)" role="button" type="button" @onclick="PrevPage">
+                <button class="btn btn-primary rounded-pill" disabled="@(!_metaData.hasPrevious)" style="aspect-ratio:1/1;" role="button" type="button" @onclick="PrevPage">
                     <i class="bi bi-arrow-left"></i>
                 </button>
 
                 <span>Page @_metaData.currentPage of @_metaData.totalPages</span>
 
-                <button class="btn btn-primary rounded-pill" disabled="@(!_metaData.hasNext)" @onclick="NextPage">
+                <button class="btn btn-primary rounded-pill" style="aspect-ratio:1/1;" disabled="@(!_metaData.hasNext)" @onclick="NextPage">
                     <i class="bi bi-arrow-right"></i>
                 </button>
             </div>
