@@ -25,7 +25,7 @@ public sealed class ReportAnalyticsService : IReportAnalyticsService
         SqlParameter startDateParameter = new SqlParameter("@StartDate", reportAnalyticsBoundary.StartDate);
         SqlParameter endDateParamter = new SqlParameter("@EndDate", reportAnalyticsBoundary.EndDate);
         _loggerManager.LogInfo($"Executing Report Analytics Procedures for parameters: {JsonSerializer.Serialize(reportAnalyticsBoundary)}");
-        var reportByVisitStatusAsQueryable = await _repositoryManager.ReportFilterDetailsRepository.GetReportFilterDetails(@"EXECUTE [dbo].[ProcGetByVisitRegistrationTypeReport] 
+        var reportByVisitStatusAsQueryable = await _repositoryManager.ReportFilterDetailsRepository.GetReportFilterDetails(@"EXECUTE [dbo].[ProcGetByVisitStatusReport] 
                            @StartDate
                           ,@EndDate", startDateParameter, endDateParamter);
 
@@ -33,7 +33,7 @@ public sealed class ReportAnalyticsService : IReportAnalyticsService
                            @StartDate
                           ,@EndDate", startDateParameter, endDateParamter);
 
-        var reportByVisitRegistrationTypeAsQueryable = await _repositoryManager.ReportFilterDetailsRepository.GetReportFilterDetails(@"EXECUTE [dbo].[ProcGetByVisitTypeReport] 
+        var reportByVisitRegistrationTypeAsQueryable = await _repositoryManager.ReportFilterDetailsRepository.GetReportFilterDetails(@"EXECUTE [dbo].[ProcGetByVisitRegistrationTypeReport]  
                            @StartDate
                           ,@EndDate", startDateParameter, endDateParamter);
 
