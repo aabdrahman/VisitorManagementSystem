@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Entities.Model;
+using Entities.Model.Helpers;
 using Entities.StaticValues;
 using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Report;
 
 namespace VisitorManagementSystem.Mapper;
 
@@ -50,5 +52,8 @@ public class Mapping : Profile
             .ForMember(dest => dest.ReceptionistName, src => src.MapFrom(x => x.ReceptionistName))
             .ForMember(dest => dest.CheckInTime, src => src.MapFrom(x => x.CheckTime))
             .ForMember(dest => dest.CheckOutTime, src => src.MapFrom(x => x.CheckOutTime));
+        CreateMap<ReportFilterDetails, ReportFilterDto>()
+            .ForMember(dest => dest.ReportFilter, src => src.MapFrom(x => x.ReportFilter))
+            .ForMember(dest => dest.NumberOfRecords, src => src.MapFrom(x => x.NumberOfRecords));
     }
 }
