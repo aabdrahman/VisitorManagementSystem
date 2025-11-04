@@ -20,7 +20,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(5000);
+        await Task.Delay(500);
         var isLogout = await authenticationSignoutHandler.Handle();
 
         if(isLogout)
