@@ -1,0 +1,144 @@
+﻿@page "/admin-analytics"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Admin Analytics Dashboard</PageTitle>
+
+<div class="container-fluid w-100 h-100">
+    <p class="display-2 fw-bolder fst-normal text-start">Admin Dashboard</p>
+    <div class="d-flex justify-content-end gap-4">
+        <select @bind="_operationType" class="form-control form-select w-25">
+            @foreach(var item in Enum.GetValues(typeof(OperationType)))
+            {
+                
+                OperationType emuns = Enum.Parse<OperationType>(item.ToString());
+
+                <option value="@item.ToString()">@emuns.GetDescription()</option>
+                @*
+                <option value="@item.ToString()">@item.ToString()</option>
+                *@
+            }
+        </select>
+        <button class="btn btn-primary rounded-3" @onclick="GetReportAnalytics">Spool Reports</button>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-grow" style="width: 12rem; height: 12rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+    }
+
+
+    <div class="w-100 mt-2">
+        @if (_errorMessage is not null && !_isSuccessful)
+        {
+            <div class="w-100 text-center alert alert-@(_isSuccessful ? "success" : "danger")" role="alert">
+                <p class="fst-italic display-6 text-center">@_errorMessage</p>
+            </div>
+        }
+        @if (_reportAnalyticsSummary is not null)
+        {
+            <div class="d-flex gap-3 flex-row justify-content-between align-items-center">
+                @{
+                    var reportTotal = new ReportFilterDto() { NumberOfRecords = _reportAnalyticsSummary.ReportByVisitStatus.Sum(x => x.NumberOfRecords), ReportFilter = "Total" };
+                    <AnalyticsCard ReportFilterDetails="reportTotal" />
+                }
+                @foreach (var item in _reportAnalyticsSummary.ReportByVisitStatus)
+                {
+                    <AnalyticsCard ReportFilterDetails="item" />
+                }
+            </div>
+            
+            <div class="d-flex mt-3 gap-3 flex-row justify-content-between">
+                <div class="d-flex gap-3 flex-row justify-content-between">
+                    @foreach(var item in _reportAnalyticsSummary.ReportByVisitRegistrationType)
+                    {
+                        <AnalyticsCard ReportFilterDetails="item" />
+                    }
+                </div>
+                <div class="d-flex gap-3 flex-row justify-content-between">
+                    @foreach(var item in _reportAnalyticsSummary.ReportByVisitType)
+                    {
+                        <AnalyticsCard ReportFilterDetails="item" />
+                    }
+                </div>
+            </div>
+            
+        }
+    </div>
+
+</div>
+
+
+
+@code {
+    private ReportAnalyticsBoundaryDto _reportAnalyticsBoundary;
+    private OperationType _operationType;
+    private ReportAnalyticsSummaryDto? _reportAnalyticsSummary;
+    private bool _isSuccessful;
+    private string _errorMessage;
+    private bool _isLoading;
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+
+    private async Task GetReportAnalytics()
+    {
+        _isLoading = true;
+        OnChangeReportType();
+        _reportAnalyticsSummary = await reportAnalyticsHandler.Handle(_reportAnalyticsBoundary);
+        _isSuccessful = _reportAnalyticsSummary is not null;
+        _errorMessage = _isSuccessful ? null : "An Error Occurred Fetching Analytics";
+        _isLoading = false;
+    }
+
+    private void OnChangeReportType()
+    {
+        switch (_operationType)
+        {
+            case (OperationType.Today):
+                _reportAnalyticsBoundary = new ReportAnalyticsBoundaryDto() { StartDate = DateOnly.FromDateTime(DateTime.UtcNow), EndDate = DateOnly.FromDateTime(DateTime.UtcNow) };
+                Console.WriteLine($"Value: {_operationType.ToString()} - {JsonSerializer.Serialize(_reportAnalyticsBoundary)}");
+                break;
+            case (OperationType.LastThreeDays):
+                _reportAnalyticsBoundary = new ReportAnalyticsBoundaryDto() { StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-3)), EndDate = DateOnly.FromDateTime(DateTime.UtcNow) };
+                Console.WriteLine($"Value: {_operationType.ToString()} - {JsonSerializer.Serialize(_reportAnalyticsBoundary)}");
+                break;
+            case (OperationType.LastSevenDays):
+                _reportAnalyticsBoundary = new ReportAnalyticsBoundaryDto() { StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-7)), EndDate = DateOnly.FromDateTime(DateTime.UtcNow) };
+                Console.WriteLine($"Value: {_operationType.ToString()} - {JsonSerializer.Serialize(_reportAnalyticsBoundary)}");
+                break;
+            case (OperationType.LastMonth):
+                _reportAnalyticsBoundary = new ReportAnalyticsBoundaryDto() { StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-1)), EndDate = DateOnly.FromDateTime(DateTime.UtcNow) };
+                Console.WriteLine($"Value: {_operationType.ToString()} - {JsonSerializer.Serialize(_reportAnalyticsBoundary)}");
+                break;
+            default:
+                _reportAnalyticsBoundary = new();
+                Console.WriteLine($"Value: {_operationType.ToString()} - {JsonSerializer.Serialize(_reportAnalyticsBoundary)}");
+                break;
+        }
+    }
+}
+
+@code {
+
+    enum OperationType
+    {
+        [Description("Today")]
+        Today,
+        [Description("Last Three Days")]
+        LastThreeDays,
+        [Description("Last Week")]
+        LastSevenDays,
+        [Description("Last Month")]
+        LastMonth
+    }
+
+    
+
+}
