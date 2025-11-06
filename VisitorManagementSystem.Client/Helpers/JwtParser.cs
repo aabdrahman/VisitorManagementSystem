@@ -14,7 +14,6 @@ public static class JwtParser
 
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
         claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
-        Console.WriteLine(JsonSerializer.Serialize(claims));
         return claims;
     }
     private static byte[] ParseBase64WithoutPadding(string base64)

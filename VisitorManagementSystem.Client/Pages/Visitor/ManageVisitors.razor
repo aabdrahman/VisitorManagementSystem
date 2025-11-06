@@ -85,14 +85,16 @@ else
     }
 }
 
-<Popup @ref="popup" Title="" ShowCloseButton="false">
+<Popup @ref="popup" Title="" ShowCloseButton="_showCloseButton">
     <Body>
         @if(operationType == OperationType.ReadOnly)
         {
+            _showCloseButton = true;
             <VisitorDetails Visitor="_selectedVisitor" />
         }
         else if(operationType == OperationType.EditMode)
         {
+            _showCloseButton = false;
             <VisitorOperation Visitor="_selectedVisitor" Close="@(async () => {
                 popup.Close();
                 await OnInitializedAsync();
@@ -113,7 +115,8 @@ else
     private string _errorMessage;
     private Popup popup;
     private VisitorDto _selectedVisitor = new();
-    private OperationType operationType; 
+    private OperationType operationType;
+    private bool _showCloseButton = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -131,9 +134,7 @@ else
             _errorMessage = "No Visitors found.";
             _isLoading = false;
         }
-        Console.WriteLine(JsonSerializer.Serialize(response));
         var responseDataContent = JsonSerializer.Serialize(response.ResponseData);
-        Console.WriteLine(responseDataContent);
         Visitors = JsonSerializer.Deserialize<IEnumerable<VisitorDto>>(responseDataContent, new JsonSerializerOptions(){ PropertyNameCaseInsensitive = true }) ?? [];
         _isLoading = false;
 

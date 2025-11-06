@@ -21,7 +21,7 @@ public class VisitDetailController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "ReceptionistPolicy")]
+    [Authorize(Policy = "UserPolicy")]
     [EnableRateLimiting(policyName: "SpecialPolicy")]
     public async Task<IActionResult> GetAllVisits([FromQuery] VisitDetailRequestParameter visitDetailRequestParameter)
     {

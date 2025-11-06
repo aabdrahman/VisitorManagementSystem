@@ -4,7 +4,6 @@ using Shared.DataTransferObjects;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using VisitorManagementSystem.Client.Helpers;
-using System.Text.Json;
 using VisitorManagementSystem.Client.Handler.Authentication;
 
 namespace VisitorManagementSystem.Client.AuthenticationProvider;
@@ -28,7 +27,6 @@ public class AuthStateProvider : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         _tokenDto = await _localStorageService.GetItemAsync<TokenDto>(ClientHelper.StorageKey) ?? null;
-        Console.WriteLine($"{JsonSerializer.Serialize(_tokenDto)}");
 
         if(_tokenDto is null)
         {

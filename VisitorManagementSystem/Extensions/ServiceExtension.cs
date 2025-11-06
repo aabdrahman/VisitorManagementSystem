@@ -14,12 +14,13 @@ using System.Threading.RateLimiting;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Configuration;
 
 namespace VisitorManagementSystem.Extensions;
 
 public static class ServiceExtension
 {
-    public static void ConfigureCors(this IServiceCollection services)
+    public static void ConfigureCors(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCors(options =>
         {
@@ -33,10 +34,10 @@ public static class ServiceExtension
 
             options.AddPolicy("FrontEndPolicy", builder =>
             {
-                builder.WithMethods("GET", "POST", "PUT", "OPTIONS")
-                        .WithOrigins("https://localhost:7034", "http://localhost:5285", "https://localhost:7126", "http://localhost:5235")
-				        .AllowAnyHeader()
-                        .WithExposedHeaders("X-Pagination", "Retry-After");
+                builder.WithOrigins(configuration.GetValue<string>("CorsPolicy:AllowedIpAddresses")?.Split(",", StringSplitOptions.RemoveEmptyEntries) ?? [])
+                        .WithMethods(configuration.GetValue<string>("CorsPolicy:AllowedMethods")?.Split(",", StringSplitOptions.RemoveEmptyEntries) ?? [])
+                        .AllowAnyHeader()
+                        .WithExposedHeaders(configuration.GetValue<string>("CorsPolicy:AllowedHeaders")?.Split(",", StringSplitOptions.RemoveEmptyEntries) ?? []);
             });
         });
     }

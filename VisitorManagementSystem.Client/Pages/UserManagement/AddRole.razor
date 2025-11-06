@@ -92,7 +92,6 @@
 
         var response = await addRoleHandler.Handle(_newRole);
         _isSuccessful = response.Item1; _message = response.Item2;
-        Console.WriteLine($"Returns - {JsonSerializer.Serialize(response)}");
         _isLoading = false;
         _newRole = new();
         StateHasChanged();
@@ -101,6 +100,5 @@
     {
         _newRole.Name = e.Value?.ToString() ?? string.Empty;
         _newRole.NormalizedName = _newRole.Name.ToUpper();
-        Console.WriteLine(_newRole.NormalizedName);
     }
 }

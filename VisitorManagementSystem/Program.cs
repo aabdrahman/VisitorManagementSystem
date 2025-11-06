@@ -16,7 +16,7 @@ builder.Services.ConfigureIdentityContext();
 builder.Services.ConfigureRepository();
 builder.Services.ConfigureAutoMapper();
 builder.Services.ConfigureServices();
-builder.Services.ConfigureCors();
+builder.Services.ConfigureCors(builder.Configuration);
 //builder.Services.ConfigureCors();
 builder.Services.ConfigureActionFilters();
 builder.Services.ConfigureJwt(builder.Configuration);

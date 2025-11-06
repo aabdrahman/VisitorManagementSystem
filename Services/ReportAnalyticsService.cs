@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Service.Contracts;
@@ -13,11 +14,13 @@ public sealed class ReportAnalyticsService : IReportAnalyticsService
     private readonly IMapper _mapper;
     private readonly IRepositoryManager _repositoryManager;
     private readonly ILoggerManager _loggerManager;
-    public ReportAnalyticsService(IMapper mapper, IRepositoryManager repositoryManager, ILoggerManager loggerManager)
+    private readonly IHttpContextAccessor _contextAccessor;
+    public ReportAnalyticsService(IMapper mapper, IRepositoryManager repositoryManager, ILoggerManager loggerManager, IHttpContextAccessor contextAccessor)
     {
         _mapper = mapper;
         _repositoryManager = repositoryManager;
         _loggerManager = loggerManager;
+        _contextAccessor = contextAccessor;
     }
     public async Task<ReportAnalyticsSummaryDto> GetAnalyticsReport(ReportAnalyticsBoundaryDto reportAnalyticsBoundary)
     {

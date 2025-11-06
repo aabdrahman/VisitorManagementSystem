@@ -25,6 +25,7 @@ public class VisitorService : IVistorService
     {
         try
         {
+            _loggerManager.LogInfo($"Creating Visitor Details for {JsonSerializer.Serialize(newVisitor)}");
             var visiorToInsert = _mapper.Map<Visitor>(newVisitor);
             visiorToInsert.Id = Guid.NewGuid();
 
@@ -32,21 +33,24 @@ public class VisitorService : IVistorService
             try
             {
                 await _repositoryManager.SaveChanges();
+               
             }
             catch
             {
-                _loggerManager.LogError($"Error Creating Record in database");
+                _loggerManager.LogError($"Error Creating New Visitor Record in database");
                 throw;
             }
 
 
             var createdVisitor = _mapper.Map<VisitorDto>(visiorToInsert);
 
+            _loggerManager.LogInfo($"Vistor Successfully Created: {JsonSerializer.Serialize(createdVisitor)}");
+
             return Response.CreateSuccessResponse(createdVisitor, "Visit Creation Successful");
         }
         catch(Exception ex)
         {
-            _loggerManager.LogError($"An Error Occurred!!: {ex.Message}");
+            _loggerManager.LogError($"An Error Occurred Creating Visitor!!: {ex.Message}");
             throw;
         }
         
@@ -59,6 +63,7 @@ public class VisitorService : IVistorService
 
     public async Task<Response> GetAll(bool trackChanges, bool ignoreQueryFilter)
     {
+        _loggerManager.LogInfo($"Fetching Visitors.......");
         var visitorsFromDb = await _repositoryManager.VisitorRepository.GetAllVisitors(trackChanges, ignoreQueryFilter);
 
         var visitorToReturn = _mapper.Map<List<VisitorDto>>(visitorsFromDb);
@@ -72,17 +77,17 @@ public class VisitorService : IVistorService
     {
         try
         {
-            //var visitorFromDb = _repositoryManager.VisitorRepository.GetVisitorByPhoneNumber(phoneNumber, trackChanges, ignoreQueryFilter);
-
+            _loggerManager.LogInfo($"Fetching Visitor for: {phoneNumber}");
             var visitorFromDb = await CheckVisitorExists(phoneNumber, trackChanges, ignoreQueryFilter);
 
             if (visitorFromDb == null)
             {
+                _loggerManager.LogInfo($"Visitor with phone number: {phoneNumber} does not exist.");
                 return Response.CreateErrorResponse(errorDetails: new Entities.ErrorModels.ErrorDetails { StatusCode = 200, ErrorDescription = "No Record Found", Message = $"No Visitor Found with Phone Number: {phoneNumber}" }, $"No Record Found.", "99");
             }
 
             var visitorToReturn = _mapper.Map<VisitorDto>(visitorFromDb);
-
+            _loggerManager.LogInfo($"Visitor Fetched Successfully. Visitor: {JsonSerializer.Serialize(visitorToReturn)}");
             return Response.CreateSuccessResponse(visitorToReturn, "Visitor Fetched Successfully,");
         }
         catch (Exception ex)

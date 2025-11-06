@@ -53,7 +53,7 @@ public class VisitorController : ControllerBase
     }
 
     [HttpGet("{phoneNumber}", Name = "GetByPhoneNumber")]
-    [Authorize(Policy = "ReceptionistPolicy")]
+    [Authorize(Policy = "UserPolicy")]
     //[OutputCache(PolicyName = "300SecondsPolicy")]
     [ResponseCache(CacheProfileName = "300Seconds")]
     public async Task<IActionResult> GetVisitorByPhoneNumber(string phoneNumber)

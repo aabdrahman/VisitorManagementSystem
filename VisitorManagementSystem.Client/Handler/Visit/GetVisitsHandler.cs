@@ -18,9 +18,7 @@ public class GetVisitsHandler
     {
         try
         {
-            Console.WriteLine($"Calling GET enpoint from the handler....");
             var getDetailsResponse = await _httpClient.GetAsync($"api/visitdetail?startDate={requestParameter.startDate}&endDate={requestParameter.endDate}&Status={requestParameter.Status}&pageNumber={requestParameter.pageNumber}&PageSize={requestParameter.PageSize}&HostName={requestParameter.HostName}");
-            Console.WriteLine($"GET endpoint returns: {getDetailsResponse.StatusCode.ToString()}");
             getDetailsResponse.EnsureSuccessStatusCode();
 
             var getDetailsRespContent = await getDetailsResponse.Content.ReadAsStringAsync();
@@ -42,7 +40,6 @@ public class GetVisitsHandler
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
             return ([], null);
         }
     }

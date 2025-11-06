@@ -29,25 +29,36 @@ public class VisitDetailService : IVisitDetailService
 
     public async Task<(IEnumerable<VisitDetailDto> visits, MetaData metaData)> GetAllVisits(VisitDetailRequestParameter visitDetailRequestParameter, bool trackChanges, bool ignoreQueryFilter)
     {
+        _loggerManager.LogInfo($"Gettting Visits with Parameters - {JsonSerializer.Serialize(visitDetailRequestParameter)} User: {_httpContextAccessor.HttpContext.User.Identity.Name ?? ""}");
         if (!visitDetailRequestParameter.isValidDate())
+        {
+            _loggerManager.LogError($"Invalid Date Selected: {JsonSerializer.Serialize(visitDetailRequestParameter)} User: {_httpContextAccessor.HttpContext.User.Identity.Name ?? ""}");
             throw new InvalidFilterDateException(visitDetailRequestParameter.startDate, visitDetailRequestParameter.endDate);
+        }
 
         var AllVisitDetailsFromDb = await _repositoryManager.VisitDetailRepository.GetAll(visitDetailRequestParameter, trackChanges, ignoreQueryFilter);
 
         var allVisitsToReturn = _mapper.Map<List<VisitDetailDto>>(AllVisitDetailsFromDb);
 
+        _loggerManager.LogInfo($"Visits Fetched Successfully - User: {_httpContextAccessor.HttpContext.User.Identity.Name ?? ""}");
 
         return (visits: allVisitsToReturn, metaData: AllVisitDetailsFromDb.metaData);
     }
 
     public async Task<VisitDetailDto> GetVisitDetailsByIdentificationNumber(string visitorIdentificationNumber, bool trackChanges, bool ignoreQueryFilter)
     {
+        _loggerManager.LogInfo($"Fetching Visit, Identification Number: {visitorIdentificationNumber} - User: {_httpContextAccessor.HttpContext.User.Identity.Name ?? ""}");
         var visitDetailRecord = await CheckVisitExists(visitorIdentificationNumber, trackChanges, ignoreQueryFilter);
 
         if(visitDetailRecord == null)
+        {
+            _loggerManager.LogWarning($"Fetching Visit failed Identification Number does not exist: {visitorIdentificationNumber} - User: {_httpContextAccessor.HttpContext.User.Identity.Name ?? ""}");
             throw new VisitDetailNotFoundException(visitorIdentificationNumber);
+        }
 
-        return _mapper.Map<VisitDetailDto>(visitDetailRecord);
+        var visitToReturn = _mapper.Map<VisitDetailDto>(visitDetailRecord);
+        _loggerManager.LogInfo($"Fetching Visit Successful, Identification Number: {JsonSerializer.Serialize(visitToReturn)} - User: {_httpContextAccessor.HttpContext.User.Identity.Name ?? ""}");
+        return visitToReturn;
     }
 
     public async Task<Response> CreateVisit(CreateVisitDetailDto createVisitDetail)
@@ -55,14 +66,11 @@ public class VisitDetailService : IVisitDetailService
         _loggerManager.LogInfo($"Creating record for: {JsonSerializer.Serialize(createVisitDetail)}");
         var visitDetail = _mapper.Map<VisitDetail>(createVisitDetail);
         visitDetail.VisitStatus = VisitStatus.Pending;
-        //visitDetail.VisitationDate = DateOnly.FromDateTime(DateTime.UtcNow);
-        //visitDetail.VisitType = Entities.StaticValues.VisitType.WalkIn;
-        //visitDetail.VisitorRegistrationType = Entities.StaticValues.VisitorRegistrationTypes.FirstTime;
-        //visitDetail.CreatedDate = DateTime.UtcNow;
         visitDetail.VisitorIdentificationNumber = GenerateVisitorIdentificationNumber();
 
         if (visitDetail.VisitorRegistrationType == VisitorRegistrationTypes.FirstTime)
         {
+            _loggerManager.LogInfo($"Creating New Visitor for New Visit: {JsonSerializer.Serialize(createVisitDetail)}");
             var visitor = new CreateVisitorDto(VisitorName: createVisitDetail.VisitorName, PhoneNumber: createVisitDetail.VisitorPhoneNumber, EmailAdddress: createVisitDetail.VisitorEmailAddress, createVisitDetail.VisitorGender);
 
             var visitorToInsert = _mapper.Map<Visitor>(visitor);
@@ -115,8 +123,6 @@ public class VisitDetailService : IVisitDetailService
         visitDetailToInsert.VisitStatus = VisitStatus.Scheduled;
         visitDetailToInsert.VisitType = VisitType.Appointment;
 
-
-
         if(scheduledVisit.VisitorRegistrationType == VisitorRegistrationTypes.FirstTime.ToString())
         {
             _loggerManager.LogInfo($"Validate Visitor exists for: {scheduledVisit.VisitorPhoneNumber}");
@@ -155,18 +161,28 @@ public class VisitDetailService : IVisitDetailService
         var visitDetails = await CheckVisitExists(checkInDetails.VisitorIdentificationNumber, trackChanges: true, ignoreQueryFilter: true);
 
         if (visitDetails == null)
+        {
+            _loggerManager.LogWarning($"No Visit Exists for Visit to checkin - Identification Number: {checkInDetails.VisitorIdentificationNumber}");
             throw new VisitDetailNotFoundException(checkInDetails.VisitorIdentificationNumber);
+        }
+            
         if(visitDetails.VisitStatus != VisitStatus.Scheduled && visitDetails.VisitStatus != VisitStatus.Pending)
+        {
+            _loggerManager.LogWarning($"Invalid Visit To Checkin -- Identification Number: {visitDetails.VisitorIdentificationNumber} - Visit Status: {visitDetails.VisitStatus}");
             throw new InvalidVisitStatusException(visitDetails.VisitStatus.ToString());
+        }
+            
         if (!await ValidateCardNumberAvailable(checkInDetails))
+        {
+            _loggerManager.LogWarning($"Provided Card Number is already in use -- Card Number: {checkInDetails.CardNumber}");
             throw new InvalidCardDetailsException(checkInDetails.CardNumber);
 
-
+        }
 
         visitDetails.ReceptionistName = checkInDetails.ReceptionistName;
         visitDetails.CheckTime = DateTime.Now;
         visitDetails.AssignedCardNumber = checkInDetails.CardNumber;
-        visitDetails.VisitStatus = Entities.StaticValues.VisitStatus.CheckedIn;
+        visitDetails.VisitStatus = VisitStatus.CheckedIn;
 
         _loggerManager.LogInfo($"Inserting Record Into Databse: {visitDetails}");
 
@@ -181,21 +197,29 @@ public class VisitDetailService : IVisitDetailService
 
     public async Task<SuccessfulCheckInDetailsDto> UpdateCheckOut(VisitorDetailsCheckInDto visitorDetailsCheckIn)
     {
+        _loggerManager.LogInfo($"Checking Out Visit - Details: {JsonSerializer.Serialize(visitorDetailsCheckIn)} - User: {_httpContextAccessor.HttpContext.User.FindFirst(x => x.Type.EndsWith(""))?.Value ?? ""}");
         var visitDetails = await CheckVisitExists(visitorDetailsCheckIn.VisitorIdentificationNumber, trackChanges: true, ignoreQueryFilter: true);
 
         if (visitDetails == null)
+        {
+            _loggerManager.LogWarning($"No Visit Exists for Visit to checkin - Identification Number: {visitorDetailsCheckIn.VisitorIdentificationNumber} - User: {_httpContextAccessor.HttpContext.User.FindFirst(x => x.Type.EndsWith(""))?.Value ?? ""}");
             throw new VisitDetailNotFoundException(visitorDetailsCheckIn.VisitorIdentificationNumber);
+        }
         if (visitDetails.VisitStatus != VisitStatus.CheckedIn)
+        {
+            _loggerManager.LogWarning($"Invalid Visit Status - Identification Number: {visitorDetailsCheckIn.VisitorIdentificationNumber} - Status: {visitDetails.VisitStatus} - User: {_httpContextAccessor.HttpContext.User.FindFirst(x => x.Type.EndsWith(""))?.Value ?? ""}");
             throw new InvalidVisitStatusException($"Visit Status is: {visitDetails.VisitStatus.ToString()}. Cannot CheckOut");
+        }
 
         visitDetails.CheckOutTime = DateTime.Now;
         visitDetails.VisitStatus = VisitStatus.CheckedOut;
-
+        _loggerManager.LogInfo($"Updating Record in database....");
         _repositoryManager.VisitDetailRepository.UpdateRecord(visitDetails);
         await _repositoryManager.SaveChanges();
 
         var visitDetailsToReturn = _mapper.Map<SuccessfulCheckInDetailsDto>(visitDetails);
 
+        _loggerManager.LogInfo($"Visit Checked Out Successfully - Identification Number: {visitorDetailsCheckIn.VisitorIdentificationNumber} - User: {_httpContextAccessor.HttpContext.User.FindFirst(x => x.Type.EndsWith(""))?.Value ?? ""}");
         return visitDetailsToReturn;
 
     }

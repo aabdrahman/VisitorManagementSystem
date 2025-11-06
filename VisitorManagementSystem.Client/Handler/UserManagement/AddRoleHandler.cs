@@ -19,14 +19,11 @@ public class AddRoleHandler
         try
         {
             var response = await _httpClient.PostAsJsonAsync("api/authentication/createRole", newRole);
-            //response.EnsureSuccessStatusCode();
             var responseContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseContent);
             return response.IsSuccessStatusCode ? (true, "Role Created Successfully.") : (false, responseContent);
         }
         catch(HttpRequestException ex)
         {
-            Console.WriteLine(ex.Message);
             return (false, $"An Error Occurred: {ex.Message}");
         }
         catch (Exception ex)
